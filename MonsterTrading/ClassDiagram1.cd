@@ -59,8 +59,15 @@
   <Class Name="MonsterTrading.Server">
     <Position X="11.25" Y="2.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAABAAAACAAAAAAAAAAAA=</HashCode>
       <FileName>Server.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MonsterTrading.DBAccess">
+    <Position X="9.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DBAccess.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
