@@ -12,20 +12,22 @@ namespace MonsterTrading
         private string connString;
         public DBAccess()
         {
-            this.connString = "Host=localhost;Username=if23b258;Password=123456;Database=postgres";
+            this.connString = "Host=localhost;Username=if23b258;Password=123456;Database=mtcg";
         }
 
-        public void Connect()
+        public NpgsqlConnection Connect()
         {
             using var conn = new NpgsqlConnection(this.connString);
             try
             {
                 conn.Open();
                 Console.WriteLine("DB Connection successful");
+                return new NpgsqlConnection(this.connString);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                throw;
             }
         }
     }

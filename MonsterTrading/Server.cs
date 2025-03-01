@@ -11,6 +11,7 @@ namespace MonsterTrading
     {
         private TcpListener httpServer;
         private DBAccess dbAccess;
+        private UserDB userDB;
         private string? path;
         private string? method;
         private string? body;
@@ -19,12 +20,12 @@ namespace MonsterTrading
         {
             this.httpServer = new TcpListener(address, port);
             dbAccess = new DBAccess();
+            userDB = new UserDB();
         }
 
         public void Start()
         {
             httpServer.Start();
-            dbAccess.Connect();
             while (true)
             {
                 var clientSocket = httpServer.AcceptTcpClient();
@@ -39,46 +40,119 @@ namespace MonsterTrading
             analyseRequest(reader);
             if(this.path == "/users")
             {
-                Console.WriteLine("work with user");
+                if(this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                    this.userDB.ShowAllUser();
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                    if (this.body != null)
+                    {
+                        this.userDB.CreateUser(this.body);
+                    }
+                }
             }
             else if(this.path == "/sessions")
             {
-                Console.WriteLine("work with sessions");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
             else if(this.path == "/packages")
             {
-                Console.WriteLine("work with packages");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
-            else if(this.path == "/transactions")
+            else if(this.path == "/transactions/packages")
             {
-                Console.WriteLine("work with transactions");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
             else if (this.path == "/cards")
             {
-                Console.WriteLine("work with cards");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
             else if (this.path == "/deck")
             {
-                Console.WriteLine("work with deck");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
             else if (this.path == "/scoreboard")
             {
-                Console.WriteLine("work with scoreboard");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
             else if (this.path == "/battles")
             {
-                Console.WriteLine("work with battles");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
             else if (this.path == "/stats")
             {
-                Console.WriteLine("work with stats");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
             else if (this.path == "/tradings")
             {
-                Console.WriteLine("work with tradings");
+                if (this.method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                {
+                    Console.WriteLine("update");
+                }
             }
-            Console.WriteLine(method);
-            Console.WriteLine(body);
         }
 
         public void analyseRequest(StreamReader reader)
