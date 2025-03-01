@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,12 +20,14 @@ namespace MonsterTrading
         public Server(IPAddress address, int port)
         {
             this.httpServer = new TcpListener(address, port);
-            dbAccess = new DBAccess();
-            userDB = new UserDB();
+            this.dbAccess = new DBAccess();
+            this.userDB = new UserDB();
         }
 
         public void Start()
         {
+            dbAccess.DropAllTable();
+            dbAccess.CreateAllTables();
             httpServer.Start();
             while (true)
             {
@@ -34,27 +37,27 @@ namespace MonsterTrading
             }
         }
 
-        public void GetEndpoint(TcpClient clientSocket)
+        public async Task GetEndpoint(TcpClient clientSocket)
         {
             using var reader = new StreamReader(clientSocket.GetStream());
-            analyseRequest(reader);
-            if(this.path == "/users")
+            using var writer = new StreamWriter(clientSocket.GetStream());
+            AnalyseRequest(reader);
+            string[] splitpath = this.path.Split("/");
+            if(this.path == "/users" || splitpath[1] == "users")
             {
                 if(this.method == "GET")
                 {
-                    Console.WriteLine("get");
-                    this.userDB.ShowAllUser();
+                    await this.userDB.ShowSpecificUser(splitpath[2], writer);
                 }
                 else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
                 {
-                    Console.WriteLine("update");
                     if (this.body != null)
                     {
-                        this.userDB.CreateUser(this.body);
+                        await this.userDB.CreateUser(this.body, writer);
                     }
                 }
             }
-            else if(this.path == "/sessions")
+            else if(this.path == "/sessions" || splitpath[1] == "sessions")
             {
                 if (this.method == "GET")
                 {
@@ -65,7 +68,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if(this.path == "/packages")
+            else if(this.path == "/packages" || splitpath[1] == "packages")
             {
                 if (this.method == "GET")
                 {
@@ -76,7 +79,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if(this.path == "/transactions/packages")
+            else if(this.path == "/transactions" || splitpath[1] == "transactions")
             {
                 if (this.method == "GET")
                 {
@@ -87,7 +90,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/cards")
+            else if (this.path == "/cards" || splitpath[1] == "cards")
             {
                 if (this.method == "GET")
                 {
@@ -98,7 +101,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/deck")
+            else if (this.path == "/deck" || splitpath[1] == "deck")
             {
                 if (this.method == "GET")
                 {
@@ -109,7 +112,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/scoreboard")
+            else if (this.path == "/scoreboard" || splitpath[1] == "scoreboard")
             {
                 if (this.method == "GET")
                 {
@@ -120,7 +123,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/battles")
+            else if (this.path == "/battles" || splitpath[1] == "battles")
             {
                 if (this.method == "GET")
                 {
@@ -131,7 +134,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/stats")
+            else if (this.path == "/stats" || splitpath[1] == "stats")
             {
                 if (this.method == "GET")
                 {
@@ -142,7 +145,7 @@ namespace MonsterTrading
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/tradings")
+            else if (this.path == "/tradings" || splitpath[1] == "tradings")
             {
                 if (this.method == "GET")
                 {
@@ -155,7 +158,7 @@ namespace MonsterTrading
             }
         }
 
-        public void analyseRequest(StreamReader reader)
+        public void AnalyseRequest(StreamReader reader)
         {
             // ----- 1. Read the HTTP-Request -----
             string? line;
@@ -200,6 +203,12 @@ namespace MonsterTrading
                 }
                 this.body = (data.ToString());
             }
+        }
+
+        public void SendResponse(StreamWriter writer, int statusCode, string message)
+        {
+            writer.WriteLine($"HTTP {statusCode} - {message}");
+            writer.Flush();
         }
     }
 }
