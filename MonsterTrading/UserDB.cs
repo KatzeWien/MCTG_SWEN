@@ -14,9 +14,11 @@ namespace MonsterTrading
     public class UserDB
     {
         private DBAccess dBAccess;
+        private ServerResponse response;
         public UserDB()
         {
             this.dBAccess = new DBAccess();
+            this.response = new ServerResponse();
         }
 
         public void ShowAllUser()
@@ -60,13 +62,14 @@ namespace MonsterTrading
                     int affectedRows = command.ExecuteNonQuery();
                     if (affectedRows != 0)
                     {
-                        WriteResponese(writer, 201, "user got added");
+                        this.response.WriteResponse(writer, 201, "user got added");
+                        //WriteResponse(writer, 201, "user got added");
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    WriteResponese(writer, 409, "failure during add user");
+                    this.response.WriteResponse(writer, 409, "failure during add user");
                 }
             }
         }
@@ -91,7 +94,7 @@ namespace MonsterTrading
                 var reader = command.ExecuteReader();
                 if (reader.Rows == 0)
                 {
-                    WriteResponese(writer, 404, "User not found");
+                    this.response.WriteResponse(writer, 404, "User not found");
                 }
                 while (reader.Read())
                 {
@@ -103,17 +106,44 @@ namespace MonsterTrading
                     int losses = reader.GetInt32(5);
 
                     Console.WriteLine($"{username} {password} {coins} {elo} {wins} {losses}");
-                    WriteResponese(writer, 201, "");
+                    this.response.WriteResponse(writer, 201, "");
                 }
             }
         }
 
-        public void WriteResponese(StreamWriter writer, int statusCode, string message)
+        public async Task LoginUser(string data, StreamWriter writer)
         {
-            string test = $"HTTP {statusCode} - {message}";
-            writer.WriteLine(test);
-            writer.Flush();
-            Console.WriteLine(test);
+            using (var connection = this.dBAccess.Connect())
+            {
+                connection.Open();
+                var userData = JsonSerializer.Deserialize<User>(data);
+                try
+                {
+                    string statement = "SELECT password FROM users WHERE username = @username;";
+                    using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("username", userData.Username);
+                    var reader = command.ExecuteScalar();
+                    string hashedpassword = HashPassword(userData.Password);
+                    if(reader != null)
+                    {
+                        string password = reader.ToString();
+                        if (hashedpassword == password)
+                        {
+                            string token = $"{userData.Username}-mtcgtoken";
+                            response.WriteResponse(writer, 200, $"Login Suceessfull {token}");
+                        }
+                        else
+                        {
+                            response.WriteResponse(writer, 401, "Unauthorized");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    response.WriteResponse(writer, 400, "something went wrong");
+                }
+            }
         }
     }
 }

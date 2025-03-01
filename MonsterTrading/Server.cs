@@ -61,11 +61,14 @@ namespace MonsterTrading
             {
                 if (this.method == "GET")
                 {
-                    Console.WriteLine("get");
+                    //Get Specification
                 }
                 else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    if(this.body != null)
+                    {
+                        await this.userDB.LoginUser(this.body, writer);
+                    }
                 }
             }
             else if(this.path == "/packages" || splitpath[1] == "packages")
