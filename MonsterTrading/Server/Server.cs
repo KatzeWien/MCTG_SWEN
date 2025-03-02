@@ -103,7 +103,7 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await packageDB.ShowAllCards(this.userToken, writer);
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
@@ -114,11 +114,11 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await userDB.ShowDeck(this.userToken, writer);
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await userDB.CheckDeckSize(this.userToken, this.body, writer);
                 }
             }
             else if (path == "/scoreboard" || splitpath[1] == "scoreboard")

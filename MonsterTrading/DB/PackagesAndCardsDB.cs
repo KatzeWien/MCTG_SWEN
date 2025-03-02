@@ -47,7 +47,6 @@ namespace MonsterTrading.DB
                 }
             }
         }
-
         public async Task AddCard(List<Cards> cards)
         {
             using (var connection = this.dBAccess.Connect())
@@ -85,6 +84,39 @@ namespace MonsterTrading.DB
                         command.Parameters.AddWithValue("element", card.Element.ToString());
                         command.Parameters.AddWithValue("cardtype", card.CardType.ToString());
                         command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+            }
+        }
+        public async Task ShowAllCards(string name, StreamWriter writer)
+        {
+            if (name == null)
+            {
+                response.WriteResponse(writer, 409, "unauthorized");
+            }
+            else
+            {
+                using (var connection = this.dBAccess.Connect())
+                {
+                    connection.Open();
+                    try
+                    {
+                        string statement = "SELECT c.name FROM stacks s JOIN cards c ON c.id = s.cardid WHERE s.userid = @userid;";
+                        using var command = new NpgsqlCommand( statement, connection);
+                        command.Parameters.AddWithValue("userid", name.Split('-')[0]);
+                        var reader = command.ExecuteReader();
+                        List<string> cards = new List<string>();
+                        while (reader.Read())
+                        {
+                            string card = reader.GetString(0);
+                            cards.Add(card);
+                        }
+                        string listOfCards = string.Join(", ", cards);
+                        response.WriteResponse(writer, 201, listOfCards);
                     }
                     catch (Exception ex)
                     {

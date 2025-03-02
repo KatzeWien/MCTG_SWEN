@@ -7,5 +7,7 @@ namespace MonsterTrading
 {
     public class Deck
     {
+        public List<User> users;
+        public List<Cards> cards;
     }
 }
