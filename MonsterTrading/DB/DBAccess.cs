@@ -5,24 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTrading
+namespace MonsterTrading.DB
 {
     public class DBAccess
     {
         private string connString;
         public DBAccess()
         {
-            this.connString = "Host=localhost;Username=if23b258;Password=123456;Database=mtcg";
+            connString = "Host=localhost;Username=if23b258;Password=123456;Database=mtcg";
         }
 
         public NpgsqlConnection Connect()
         {
-            using var conn = new NpgsqlConnection(this.connString);
+            using var conn = new NpgsqlConnection(connString);
             try
             {
                 conn.Open();
                 Console.WriteLine("DB Connection successful");
-                return new NpgsqlConnection(this.connString);
+                return new NpgsqlConnection(connString);
             }
             catch (Exception ex)
             {
@@ -35,7 +35,7 @@ namespace MonsterTrading
         {
             try
             {
-                string[] sqlDel = File.ReadAllLines("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\DropAllTables.txt");
+                string[] sqlDel = File.ReadAllLines("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\DB\\DropAllTables.txt");
                 using (var connection = Connect())
                 {
                     connection.Open();
@@ -56,7 +56,7 @@ namespace MonsterTrading
         {
             try
             {
-                string script = File.ReadAllText("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\AddTables.txt");
+                string script = File.ReadAllText("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\DB\\AddTables.txt");
                 using (var connection = Connect())
                 {
                     connection.Open();

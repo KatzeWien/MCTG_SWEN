@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using MonsterTrading.Server;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MonsterTrading
+namespace MonsterTrading.DB
 {
     public class UserDB
     {
@@ -17,13 +18,13 @@ namespace MonsterTrading
         private ServerResponse response;
         public UserDB()
         {
-            this.dBAccess = new DBAccess();
-            this.response = new ServerResponse();
+            dBAccess = new DBAccess();
+            response = new ServerResponse();
         }
 
         public void ShowAllUser()
         {
-            using (var connection = this.dBAccess.Connect())
+            using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 string statement = "SELECT * FROM users;";
@@ -45,14 +46,14 @@ namespace MonsterTrading
 
         public async Task CreateUser(string data, StreamWriter writer)
         {
-            using (var connection = this.dBAccess.Connect())
+            using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 var userData = JsonSerializer.Deserialize<User>(data);
                 try
                 {
                     string statement = "INSERT INTO users (username, password, coins, elo, wins, losses) VALUES (@username, @password, @coins, @elo, @wins, @losses);";
-                    using var command = new NpgsqlCommand (statement, connection);
+                    using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("username", userData.Username);
                     command.Parameters.AddWithValue("password", HashPassword(userData.Password));
                     command.Parameters.AddWithValue("coins", 20);
@@ -62,21 +63,20 @@ namespace MonsterTrading
                     int affectedRows = command.ExecuteNonQuery();
                     if (affectedRows != 0)
                     {
-                        this.response.WriteResponse(writer, 201, "user got added");
-                        //WriteResponse(writer, 201, "user got added");
+                        response.WriteResponse(writer, 201, "user got added");
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    this.response.WriteResponse(writer, 409, "failure during add user");
+                    response.WriteResponse(writer, 409, "failure during add user");
                 }
             }
         }
 
         public string HashPassword(string password)
         {
-            using(SHA256 sHA256 = SHA256.Create())
+            using (SHA256 sHA256 = SHA256.Create())
             {
                 byte[] hash = sHA256.ComputeHash(Encoding.UTF8.GetBytes(password));
                 return Convert.ToBase64String(hash);
@@ -85,16 +85,16 @@ namespace MonsterTrading
 
         public async Task ShowSpecificUser(string name, StreamWriter writer)
         {
-            using (var connection = this.dBAccess.Connect())
+            using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 string statement = "SELECT * FROM users WHERE username = @username;";
                 using var command = new NpgsqlCommand(statement, connection);
-                command.Parameters.AddWithValue ("username", name);
+                command.Parameters.AddWithValue("username", name);
                 var reader = command.ExecuteReader();
                 if (reader.Rows == 0)
                 {
-                    this.response.WriteResponse(writer, 404, "User not found");
+                    response.WriteResponse(writer, 404, "User not found");
                 }
                 while (reader.Read())
                 {
@@ -106,14 +106,14 @@ namespace MonsterTrading
                     int losses = reader.GetInt32(5);
 
                     Console.WriteLine($"{username} {password} {coins} {elo} {wins} {losses}");
-                    this.response.WriteResponse(writer, 201, "");
+                    response.WriteResponse(writer, 201, "");
                 }
             }
         }
 
         public async Task LoginUser(string data, StreamWriter writer)
         {
-            using (var connection = this.dBAccess.Connect())
+            using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 var userData = JsonSerializer.Deserialize<User>(data);
@@ -124,7 +124,7 @@ namespace MonsterTrading
                     command.Parameters.AddWithValue("username", userData.Username);
                     var reader = command.ExecuteScalar();
                     string hashedpassword = HashPassword(userData.Password);
-                    if(reader != null)
+                    if (reader != null)
                     {
                         string password = reader.ToString();
                         if (hashedpassword == password)

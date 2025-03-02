@@ -1,5 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using MonsterTrading;
+using MonsterTrading.Server;
 using System.Net;
 
 IPAddress iPAddress = IPAddress.Parse("127.0.0.1");

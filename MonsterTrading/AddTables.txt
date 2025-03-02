@@ -1,8 +1,0 @@
-﻿CREATE TABLE IF NOT EXISTS users (
-username VARCHAR(50) PRIMARY KEY,
-password VARCHAR(100),
-coins INT,
-elo INT,
-wins INT,
-losses INT
-);

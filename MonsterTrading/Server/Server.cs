@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using MonsterTrading.DB;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,13 +7,14 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace MonsterTrading
+namespace MonsterTrading.Server
 {
     public class Server
     {
         private TcpListener httpServer;
         private DBAccess dbAccess;
         private UserDB userDB;
+        private PackagesDB packageDB;
         private string? path;
         private string? method;
         private string? body;
@@ -22,6 +24,7 @@ namespace MonsterTrading
             this.httpServer = new TcpListener(address, port);
             this.dbAccess = new DBAccess();
             this.userDB = new UserDB();
+            this.packageDB = new PackagesDB();
         }
 
         public void Start()
@@ -42,119 +45,119 @@ namespace MonsterTrading
             using var reader = new StreamReader(clientSocket.GetStream());
             using var writer = new StreamWriter(clientSocket.GetStream());
             AnalyseRequest(reader);
-            string[] splitpath = this.path.Split("/");
-            if(this.path == "/users" || splitpath[1] == "users")
+            string[] splitpath = path.Split("/");
+            if (path == "/users" || splitpath[1] == "users")
             {
-                if(this.method == "GET")
+                if (method == "GET")
                 {
-                    await this.userDB.ShowSpecificUser(splitpath[2], writer);
+                    await userDB.ShowSpecificUser(splitpath[2], writer);
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    if (this.body != null)
+                    if (body != null)
                     {
-                        await this.userDB.CreateUser(this.body, writer);
+                        await userDB.CreateUser(body, writer);
                     }
                 }
             }
-            else if(this.path == "/sessions" || splitpath[1] == "sessions")
+            else if (path == "/sessions" || splitpath[1] == "sessions")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     //Get Specification
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    if(this.body != null)
+                    if (body != null)
                     {
-                        await this.userDB.LoginUser(this.body, writer);
+                        await userDB.LoginUser(body, writer);
                     }
                 }
             }
-            else if(this.path == "/packages" || splitpath[1] == "packages")
+            else if (path == "/packages" || splitpath[1] == "packages")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     Console.WriteLine("get");
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
+                {
+                    await packageDB.CreatePackage(body, writer);
+                }
+            }
+            else if (path == "/transactions" || splitpath[1] == "transactions")
+            {
+                if (method == "GET")
+                {
+                    Console.WriteLine("get");
+                }
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
                     Console.WriteLine("update");
                 }
             }
-            else if(this.path == "/transactions" || splitpath[1] == "transactions")
+            else if (path == "/cards" || splitpath[1] == "cards")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     Console.WriteLine("get");
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/cards" || splitpath[1] == "cards")
+            else if (path == "/deck" || splitpath[1] == "deck")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     Console.WriteLine("get");
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/deck" || splitpath[1] == "deck")
+            else if (path == "/scoreboard" || splitpath[1] == "scoreboard")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     Console.WriteLine("get");
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/scoreboard" || splitpath[1] == "scoreboard")
+            else if (path == "/battles" || splitpath[1] == "battles")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     Console.WriteLine("get");
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/battles" || splitpath[1] == "battles")
+            else if (path == "/stats" || splitpath[1] == "stats")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     Console.WriteLine("get");
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
                     Console.WriteLine("update");
                 }
             }
-            else if (this.path == "/stats" || splitpath[1] == "stats")
+            else if (path == "/tradings" || splitpath[1] == "tradings")
             {
-                if (this.method == "GET")
+                if (method == "GET")
                 {
                     Console.WriteLine("get");
                 }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
-                {
-                    Console.WriteLine("update");
-                }
-            }
-            else if (this.path == "/tradings" || splitpath[1] == "tradings")
-            {
-                if (this.method == "GET")
-                {
-                    Console.WriteLine("get");
-                }
-                else if (this.method == "POST" || this.method == "PUT" || this.method == "DELETE")
+                else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
                     Console.WriteLine("update");
                 }
@@ -171,8 +174,8 @@ namespace MonsterTrading
             if (line != null)
             {
                 var partsOfFirstLine = line.Split(" ");
-                this.method = partsOfFirstLine[0];
-                this.path = partsOfFirstLine[1];
+                method = partsOfFirstLine[0];
+                path = partsOfFirstLine[1];
             }
             // 1.2 read the HTTP-headers (in HTTP after the first line, until the empy line)
             int content_length = 0; // we need the content_length later, to be able to read the HTTP-content
@@ -204,7 +207,7 @@ namespace MonsterTrading
                         break;
                     data.Append(chars, 0, bytesRead);
                 }
-                this.body = (data.ToString());
+                body = data.ToString();
             }
         }
 
