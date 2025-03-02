@@ -22,6 +22,22 @@ namespace MonsterTrading.DB
             response = new ServerResponse();
         }
 
+        public async Task WhichMethod(string method, string data, StreamWriter writer)
+        {
+            switch (method)
+            {
+                case "POST":
+                    CreateUser(data, writer);
+                    break;
+                case "PUT":
+                    response.WriteResponse(writer, 400, "not implementet");
+                    break;
+                case "DELETE":
+                    response.WriteResponse(writer, 400, "not implementet");
+                    break;
+            }
+        }
+
         public void ShowAllUser()
         {
             using (var connection = dBAccess.Connect())
@@ -142,6 +158,117 @@ namespace MonsterTrading.DB
                 {
                     Console.WriteLine(ex.Message);
                     response.WriteResponse(writer, 400, "something went wrong");
+                }
+            }
+        }
+
+        public async Task BuyPackage(string name, StreamWriter writer)
+        {
+            bool canBuy = CheckCoins(name);
+            if (canBuy == true)
+            {
+                using (var connection = dBAccess.Connect())
+                {
+                    connection.Open();
+                    try
+                    {
+                        string statement = "SELECT * FROM packages ORDER BY RANDOM() LIMIT 1;";
+                        using var command = new NpgsqlCommand( statement, connection);
+                        var reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            var card1 = reader.GetString(1);
+                            var card2 = reader.GetString(2);
+                            var card3 = reader.GetString(3);
+                            var card4 = reader.GetString(4);
+                            var card5 = reader.GetString(5);
+                            List<string> cards = new List<string> { card1 , card2 , card3 , card4 , card5 };
+                            AddCardstoStack(name, cards, writer);
+                        }
+                        DecreaseCoins(name);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                response.WriteResponse(writer, 400, "not enough money");
+            }
+        }
+
+        public bool CheckCoins(string name)
+        {
+            using (var connection = dBAccess.Connect())
+            {
+                name = name.Split('-')[0];
+                connection.Open();
+                try
+                {
+                    string statement = "SELECT coins FROM users WHERE username = @username;";
+                    using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("username", name);
+                    var reader = command.ExecuteScalar();
+                    if(Convert.ToInt32(reader) < 5)
+                    {
+                        return false;
+                    }
+                    else
+                    {  
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
+            }
+        }
+
+        public async Task DecreaseCoins(string name)
+        {
+            using (var connection = dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string statement = "UPDATE users SET coins = coins - 5 WHERE username = @username;";
+                    using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("username", name = name.Split('-')[0]);
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                { Console.WriteLine(ex.Message); }
+            }
+        }
+
+        public async Task AddCardstoStack(string name, List<string> cards, StreamWriter writer)
+        {
+            using (var connection = dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    int affectedrows = 0;
+                    foreach (var card in cards)
+                    {
+                        string statement = "INSERT INTO stacks (userid, cardid) VALUES (@userid, @cardid);";
+                        using var command = new NpgsqlCommand(statement, connection);
+                        command.Parameters.AddWithValue("userid", name.Split('-')[0]);
+                        command.Parameters.AddWithValue("cardid", card);
+                        affectedrows = affectedrows + command.ExecuteNonQuery();
+                        if (affectedrows == 5)
+                        {
+                            response.WriteResponse(writer, 201, "package added successfully");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
             }
         }

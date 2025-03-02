@@ -14,17 +14,20 @@ namespace MonsterTrading.Server
         private TcpListener httpServer;
         private DBAccess dbAccess;
         private UserDB userDB;
-        private PackagesDB packageDB;
+        private PackagesAndCardsDB packageDB;
         private string? path;
         private string? method;
         private string? body;
+        private string? userToken;
+        private ServerResponse response; 
 
         public Server(IPAddress address, int port)
         {
             this.httpServer = new TcpListener(address, port);
             this.dbAccess = new DBAccess();
             this.userDB = new UserDB();
-            this.packageDB = new PackagesDB();
+            this.packageDB = new PackagesAndCardsDB();
+            this.response = new ServerResponse();
         }
 
         public void Start()
@@ -56,7 +59,7 @@ namespace MonsterTrading.Server
                 {
                     if (body != null)
                     {
-                        await userDB.CreateUser(body, writer);
+                        await userDB.WhichMethod(method, body, writer);
                     }
                 }
             }
@@ -78,7 +81,7 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
@@ -89,77 +92,77 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    await userDB.BuyPackage(this.userToken, writer);
                 }
             }
             else if (path == "/cards" || splitpath[1] == "cards")
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
             }
-            else if (path == "/deck" || splitpath[1] == "deck")
+            else if (path == "/deck" || splitpath[1] == "deck" || splitpath[1].StartsWith("deck"))
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
             }
             else if (path == "/scoreboard" || splitpath[1] == "scoreboard")
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
             }
             else if (path == "/battles" || splitpath[1] == "battles")
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
             }
             else if (path == "/stats" || splitpath[1] == "stats")
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
             }
             else if (path == "/tradings" || splitpath[1] == "tradings")
             {
                 if (method == "GET")
                 {
-                    Console.WriteLine("get");
+                    response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    Console.WriteLine("update");
+                    response.WriteResponse(writer, 400, "not implementet");   
                 }
             }
         }
@@ -192,6 +195,10 @@ namespace MonsterTrading.Server
                 {
                     content_length = int.Parse(parts[1].Trim());
                 }
+                if (parts[0].Trim() == "Authorization")
+                {
+                    this.userToken = parts[1].Split(" ")[2].Trim();
+                }
             }
             // 1.3 read the body if existing
             if (content_length > 0)
@@ -209,12 +216,6 @@ namespace MonsterTrading.Server
                 }
                 body = data.ToString();
             }
-        }
-
-        public void SendResponse(StreamWriter writer, int statusCode, string message)
-        {
-            writer.WriteLine($"HTTP {statusCode} - {message}");
-            writer.Flush();
         }
     }
 }

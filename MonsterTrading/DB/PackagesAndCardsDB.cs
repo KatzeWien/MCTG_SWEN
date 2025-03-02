@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace MonsterTrading.DB
 {
-    public class PackagesDB
+    public class PackagesAndCardsDB
     {
         private DBAccess dBAccess;
         private ServerResponse response;
-        public PackagesDB()
+        public PackagesAndCardsDB()
         {
             dBAccess = new DBAccess();
             response = new ServerResponse();
