@@ -13,7 +13,8 @@ public class UserDBTests
     [SetUp]
     public void Setup()
     {
-        _connection = new NpgsqlConnection("Host=localhost;Username=if23b258;Password=123456;Database=testdb");
+        string conn = "Host=localhost;Username=if23b258;Password=123456;Database=testdb";
+        _connection = new NpgsqlConnection(conn);
         _connection.Open();
 
         var command = _connection.CreateCommand();
@@ -29,7 +30,10 @@ public class UserDBTests
         ";
         command.ExecuteNonQuery();
 
+
+
         _userDB = new UserDB(); // Verwende den Standardkonstruktor
+        _userDB.dBAccess.connString = conn;
     }
 
     [TearDown]

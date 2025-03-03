@@ -14,7 +14,7 @@ namespace MonsterTrading.DB
 {
     public class UserDB
     {
-        private DBAccess dBAccess;
+        public DBAccess dBAccess;
         private ServerResponse response;
         public UserDB()
         {
