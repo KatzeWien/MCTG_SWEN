@@ -15,7 +15,10 @@ namespace MonsterTrading
         public int Elo {  get; set; }
         public int Wins {  get; set; }
         public int Losses {  get; set; }
-        public User(string username, string password, int coins, int elo, int wins, int losses) 
+        public string Bio {  get; set; }
+        public string Image { get; set; }
+        public string Name { get; set; }
+        public User(string username, string password, int coins, int elo, int wins, int losses, string bio, string image, string name) 
         {
             this.Username = username;
             this.Password = password;
@@ -23,6 +26,9 @@ namespace MonsterTrading
             this.Elo = elo;
             this.Wins = wins;
             this.Losses = losses;
+            this.Bio = bio;
+            this.Image = image;
+            this.Name = name;
         }
     }
 }

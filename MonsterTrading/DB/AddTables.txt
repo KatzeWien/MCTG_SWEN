@@ -4,7 +4,10 @@ password VARCHAR(100),
 coins INT,
 elo INT,
 wins INT,
-losses INT
+losses INT,
+bio VARCHAR(250) DEFAULT 'n/a',
+image VARCHAR(250) DEFAULT 'n/a', 
+name VARCHAR(100) DEFAULT 'n/a'
 );
 
 CREATE TABLE IF NOT EXISTS cards (

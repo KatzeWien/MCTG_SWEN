@@ -17,27 +17,13 @@ namespace MonsterTrading.DB
         public DBAccess dBAccess;
         private ServerResponse response;
         private PackagesAndCardsDB packageDB;
+        private StackDeckDB stackdeckDB;
         public UserDB()
         {
-            dBAccess = new DBAccess();
-            response = new ServerResponse();
-            packageDB = new PackagesAndCardsDB();
-        }
-
-        public async Task WhichMethod(string method, string data, StreamWriter writer)
-        {
-            switch (method)
-            {
-                case "POST":
-                    CreateUser(data, writer);
-                    break;
-                case "PUT":
-                    response.WriteResponse(writer, 400, "not implementet");
-                    break;
-                case "DELETE":
-                    response.WriteResponse(writer, 400, "not implementet");
-                    break;
-            }
+            this.dBAccess = new DBAccess();
+            this.response = new ServerResponse();
+            this.packageDB = new PackagesAndCardsDB();
+            this.stackdeckDB = new StackDeckDB();
         }
 
         public void ShowAllUser()
@@ -51,13 +37,12 @@ namespace MonsterTrading.DB
                 while (reader.Read())
                 {
                     string username = reader.GetString(0);
-                    string password = reader.GetString(1);
+                    //string password = reader.GetString(1);
                     int coins = reader.GetInt32(2);
                     int elo = reader.GetInt32(3);
                     int wins = reader.GetInt32(4);
                     int losses = reader.GetInt32(5);
-
-                    Console.WriteLine($"{username} {password} {coins} {elo} {wins} {losses}");
+                    Console.WriteLine($"{username} {coins} {elo} {wins} {losses}");
                 }
             }
         }
@@ -101,30 +86,41 @@ namespace MonsterTrading.DB
             }
         }
 
-        public async Task ShowSpecificUser(string name, StreamWriter writer)
+        public async Task ShowSpecificUser(string name, StreamWriter writer, string token)
         {
-            using (var connection = dBAccess.Connect())
+            if (token.Contains(name))
             {
-                connection.Open();
-                string statement = "SELECT * FROM users WHERE username = @username;";
-                using var command = new NpgsqlCommand(statement, connection);
-                command.Parameters.AddWithValue("username", name);
-                var reader = command.ExecuteReader();
-                if (reader.Rows == 0)
+                using (var connection = dBAccess.Connect())
                 {
-                    response.WriteResponse(writer, 404, "User not found");
+                    connection.Open();
+                    string statement = "SELECT * FROM users WHERE username = @username;";
+                    using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("username", name);
+                    var reader = command.ExecuteReader();
+                    if (reader.HasRows == false)
+                    {
+                        response.WriteResponse(writer, 404, "User not found");
+                    }
+                    else
+                    {
+                        while (reader.Read())
+                        {
+                            string username = reader.GetString(0);
+                            int coins = reader.GetInt32(2);
+                            int elo = reader.GetInt32(3);
+                            int wins = reader.GetInt32(4);
+                            int losses = reader.GetInt32(5);
+                            string bio = reader.GetString(6);
+                            string image = reader.GetString(7);
+                            string givenname = reader.GetString(8); 
+                            response.WriteResponse(writer, 201, $"{username} {coins} {elo} {wins} {losses} {bio} {image} {givenname}");
+                        }
+                    }
                 }
-                while (reader.Read())
-                {
-                    string username = reader.GetString(0);
-                    string password = reader.GetString(1);
-                    int coins = reader.GetInt32(2);
-                    int elo = reader.GetInt32(3);
-                    int wins = reader.GetInt32(4);
-                    int losses = reader.GetInt32(5);
-                    Console.WriteLine($"{username} {password} {coins} {elo} {wins} {losses}");
-                    response.WriteResponse(writer, 201, "");
-                }
+            }
+            else
+            {
+                response.WriteResponse(writer, 401, "unauthorized");
             }
         }
 
@@ -187,7 +183,7 @@ namespace MonsterTrading.DB
                             var card4 = reader.GetString(4);
                             var card5 = reader.GetString(5);
                             List<string> cards = new List<string> { card1, card2, card3, card4, card5 };
-                            await AddCardstoStack(name, cards, writer);
+                            await this.stackdeckDB.AddCardstoStack(name, cards, writer);
                             await packageDB.DeletePackage(packageid);
                         }
                         await DecreaseCoins(name);
@@ -257,152 +253,38 @@ namespace MonsterTrading.DB
             }
         }
 
-        public async Task AddCardstoStack(string name, List<string> cards, StreamWriter writer)
+        public async Task UpdateUser(string name, StreamWriter writer, string data, string token)
         {
-            using (var connection = dBAccess.Connect())
+            if (token.Contains(name))
             {
-                connection.Open();
-                try
+                using (var connection = dBAccess.Connect())
                 {
-                    int affectedrows = 0;
-                    foreach (var card in cards)
+                    connection.Open();
+                    var userData = JsonSerializer.Deserialize<User>(data);
+                    try
                     {
-                        string statement = "INSERT INTO stacks (userid, cardid) VALUES (@userid, @cardid);";
+                        string statement = "UPDATE users SET bio = @bio, image = @image, name = @name WHERE username = @userid;";
                         using var command = new NpgsqlCommand(statement, connection);
-                        command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                        command.Parameters.AddWithValue("cardid", card);
-                        affectedrows = affectedrows + command.ExecuteNonQuery();
-                        if (affectedrows == 5)
+                        command.Parameters.AddWithValue("bio", userData.Bio);
+                        command.Parameters.AddWithValue("image", userData.Image);
+                        command.Parameters.AddWithValue("name", userData.Name);
+                        command.Parameters.AddWithValue("userid", name);
+                        int affectedRows = command.ExecuteNonQuery();
+                        if (affectedRows != 0)
                         {
-                            response.WriteResponse(writer, 201, "package added successfully");
+                            response.WriteResponse(writer, 201, "user got updated");
                         }
                     }
+                    catch(Exception ex)
+                    { 
+                        Console.WriteLine(ex.Message);
+                        response.WriteResponse(writer, 409, "failure during add user");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-        }
-
-        public async Task ShowDeck(string name, StreamWriter writer)
-        {
-            if (name == null)
-            {
-                response.WriteResponse(writer, 409, "unauthorized");
             }
             else
             {
-                using (var connection = this.dBAccess.Connect())
-                {
-                    connection.Open();
-                    try
-                    {
-                        string statement = "SELECT c.name FROM decks d JOIN cards c ON c.id = d.cardid WHERE d.userid = @userid;";
-                        using var command = new NpgsqlCommand(statement, connection);
-                        command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                        var reader = command.ExecuteReader();
-                        List<string> cards = new List<string>();
-                        while (reader.Read())
-                        {
-                            string card = reader.GetString(0);
-                            cards.Add(card);
-                        }
-                        string listOfCards = string.Join(", ", cards);
-                        if (listOfCards == "")
-                        {
-                            response.WriteResponse(writer, 200, "list is empty");
-                        }
-                        else
-                        {
-                            response.WriteResponse(writer, 201, listOfCards);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
-            }
-        }
-        public async Task CheckDeckSize(string name, string data, StreamWriter writer)
-        {
-            using (var connection = dBAccess.Connect())
-            {
-                var cards = JsonSerializer.Deserialize<List<string>>(data);
-                if (cards.Count != 4)
-                {
-                    response.WriteResponse(writer, 400, "only 3 cards");
-                }
-                else
-                {
-                    connection.Open();
-                    try
-                    {
-                        string statement = "SELECT COUNT(*) FROM decks WHERE userid = @userid;";
-                        using var command = new NpgsqlCommand(statement, connection);
-                        command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                        long rowCount = (long)command.ExecuteScalar();
-                        if (rowCount == 0)
-                        {
-                            await CreateDeck(name, writer, cards);
-                        }
-                        else
-                        {
-                            await UpdateDeck(name, writer, cards);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
-            }
-        }
-
-        public async Task CreateDeck(string name, StreamWriter writer, List<string> cards)
-        {
-            using (var connection = dBAccess.Connect())
-            {
-                connection.Open();
-                try
-                {
-                    int affectedRows = 0;
-                    foreach (var card in cards)
-                    {
-                        string statement = "INSERT INTO decks (userid, cardid) VALUES (@userid, @cardid);";
-                        using var command = new NpgsqlCommand(statement, connection);
-                        command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                        command.Parameters.AddWithValue("cardid", card);
-                        affectedRows = affectedRows + command.ExecuteNonQuery();
-                        if (affectedRows == 4)
-                        {
-                            response.WriteResponse(writer, 200, "new deck created");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-        }
-
-        public async Task UpdateDeck(string name ,StreamWriter writer, List<string> data)
-        {
-            using (var connection = dBAccess.Connect())
-            {
-                connection.Open();
-                try
-                {
-                    string statement = "DELETE FROM decks WHERE userid = @userid;";
-                    using var command = new NpgsqlCommand(statement, connection);
-                    command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                    command.ExecuteNonQuery();
-                    await CreateDeck(name, writer, data);
-                }
-                catch (Exception ex)
-                { Console.WriteLine(ex.Message); }
+                response.WriteResponse(writer, 409, "unauthorized");
             }
         }
     }

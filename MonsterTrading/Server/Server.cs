@@ -15,6 +15,7 @@ namespace MonsterTrading.Server
         private DBAccess dbAccess;
         private UserDB userDB;
         private PackagesAndCardsDB packageDB;
+        private StackDeckDB stackdeckDB;
         private string? path;
         private string? method;
         private string? body;
@@ -28,6 +29,7 @@ namespace MonsterTrading.Server
             this.userDB = new UserDB();
             this.packageDB = new PackagesAndCardsDB();
             this.response = new ServerResponse();
+            this.stackdeckDB = new StackDeckDB();
         }
 
         public void Start()
@@ -57,14 +59,19 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    await userDB.ShowSpecificUser(splitpath[2], writer);
+                    await userDB.ShowSpecificUser(splitpath[2], writer, userToken);
                 }
-                else if (method == "POST" || method == "PUT" || method == "DELETE")
+                else if (method == "POST")
                 {
-                    if (body != null)
-                    {
-                        await userDB.WhichMethod(method, body, writer);
-                    }
+                    await userDB.CreateUser(body, writer);
+                }
+                else if(method == "PUT")
+                {
+                    await userDB.UpdateUser(splitpath[2], writer, body, userToken);
+                }
+                else if(method == "DELETE")
+                {
+                    //Implementation for Delete
                 }
             }
             else if (path == "/sessions" || splitpath[1] == "sessions")
@@ -118,11 +125,11 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    await userDB.ShowDeck(this.userToken, writer);
+                    await stackdeckDB.ShowDeck(this.userToken, writer);
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    await userDB.CheckDeckSize(this.userToken, this.body, writer);
+                    await stackdeckDB.CheckDeckSize(this.userToken, this.body, writer);
                 }
             }
             else if (path == "/scoreboard" || splitpath[1] == "scoreboard")

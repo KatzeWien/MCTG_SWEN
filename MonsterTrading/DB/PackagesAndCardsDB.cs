@@ -27,7 +27,7 @@ namespace MonsterTrading.DB
                 {
                     connection.Open();
                     var packageData = JsonSerializer.Deserialize<List<Cards>>(data);
-                    AddCard(packageData);
+                    await AddCard(packageData);
                     try
                     {
                         string statement = "INSERT INTO packages (firstcard, secondcard, thirdcard, forthcard, fifthcard) VALUES (@firstcard, @secondcard, @thirdcard, @forthcard, @fifthcard);";
