@@ -81,4 +81,12 @@ public class UserDBTests
         // Assert
         Assert.IsFalse(result);
     }
+
+    [Test]
+    public void CheckPasswordHash()
+    {
+        string password = "testpassword";
+        string hashedPassword = _userDB.HashPassword(password);
+        Assert.AreNotEqual(hashedPassword, password);
+    }
 }
