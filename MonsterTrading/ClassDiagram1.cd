@@ -1,73 +1,102 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="MonsterTrading.User">
-    <Position X="7" Y="0.5" Width="1.5" />
+    <Position X="9.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAgAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAgAAAAAQAACAAAAAAAAAAiAAAIAAAAAAA=</HashCode>
       <FileName>User.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Cards">
-    <Position X="3.75" Y="1.75" Width="1.5" />
+    <Position X="8" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="MonsterTrading.Cards.Elements" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Cards.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="MonsterTrading.Cards.CardTypes" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Cards.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAACAACAAAAAAAAAAAgAAAQAAAgAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Cards.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Battles">
-    <Position X="2" Y="0.5" Width="1.5" />
+    <Position X="5.75" Y="4.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Battles.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="MonsterTrading.MonsterCard">
-    <Position X="1.25" Y="3.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>MonsterCard.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="MonsterTrading.SpellCard">
-    <Position X="6.5" Y="3.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>SpellCard.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="MonsterTrading.ScoreBoard">
-    <Position X="9.25" Y="2.75" Width="1.5" />
+    <Position X="7.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ScoreBoard.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Stack">
-    <Position X="9.75" Y="1.5" Width="1.5" />
+    <Position X="11.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>IAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Stack.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Deck">
-    <Position X="12.5" Y="1" Width="1.5" />
+    <Position X="9.75" Y="3.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>IAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Deck.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="MonsterTrading.Server">
-    <Position X="11.25" Y="2.75" Width="1.5" />
+  <Class Name="MonsterTrading.DB.DBAccess">
+    <Position X="2.25" Y="2" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAABAAAACAAAAAAAAAAAA=</HashCode>
-      <FileName>Server.cs</FileName>
+      <HashCode>ACAAAAAAAAAAAAAAAAAAAIAAIAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>DB\DBAccess.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="MonsterTrading.DBAccess">
-    <Position X="9.25" Y="4" Width="1.5" />
+  <Class Name="MonsterTrading.DB.UserDB">
+    <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>ACAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>DBAccess.cs</FileName>
+      <HashCode>EAAAAEBABRAUAAAQAAIAgAABAAAAAgAAQAAAAAAQAAE=</HashCode>
+      <FileName>DB\UserDB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MonsterTrading.Server.Server">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAACAAACAAABACABAAARABAACAAAAQAAAAAEA=</HashCode>
+      <FileName>Server\Server.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MonsterTrading.DB.PackagesAndCardsDB">
+    <Position X="5.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EAAAIEAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <FileName>DB\PackagesAndCardsDB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MonsterTrading.Server.ServerResponse">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Server\ServerResponse.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MonsterTrading.Packages">
+    <Position X="11.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packages.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

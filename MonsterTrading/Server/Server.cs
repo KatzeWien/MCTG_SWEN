@@ -47,6 +47,10 @@ namespace MonsterTrading.Server
         {
             using var reader = new StreamReader(clientSocket.GetStream());
             using var writer = new StreamWriter(clientSocket.GetStream());
+            this.path = null;
+            this.method = null;
+            this.body = null;
+            this.userToken = null;
             AnalyseRequest(reader);
             string[] splitpath = path.Split("/");
             if (path == "/users" || splitpath[1] == "users")
@@ -85,7 +89,7 @@ namespace MonsterTrading.Server
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    await packageDB.CreatePackage(body, writer);
+                    await packageDB.CreatePackage(body, writer, this.userToken);
                 }
             }
             else if (path == "/transactions" || splitpath[1] == "transactions")

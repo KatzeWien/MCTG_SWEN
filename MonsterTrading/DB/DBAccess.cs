@@ -12,7 +12,7 @@ namespace MonsterTrading.DB
         public string connString;
         public DBAccess()
         {
-            //connString = "Host=localhost;Username=if23b258;Password=123456;Database=mtcg";
+            connString = "Host=localhost;Username=if23b258;Password=123456;Database=mtcg";
         }
 
         public NpgsqlConnection Connect()

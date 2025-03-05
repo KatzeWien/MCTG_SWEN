@@ -19,32 +19,39 @@ namespace MonsterTrading.DB
             response = new ServerResponse();
         }
 
-        public async Task CreatePackage(string data, StreamWriter writer)
+        public async Task CreatePackage(string data, StreamWriter writer, string token)
         {
-            using (var connection = this.dBAccess.Connect())
+            if (token.Contains("admin"))
             {
-                connection.Open();
-                var packageData = JsonSerializer.Deserialize<List<Cards>>(data);
-                AddCard(packageData);
-                try
+                using (var connection = this.dBAccess.Connect())
                 {
-                    string statement = "INSERT INTO packages (firstcard, secondcard, thirdcard, forthcard, fifthcard) VALUES (@firstcard, @secondcard, @thirdcard, @forthcard, @fifthcard);";
-                    using var command = new NpgsqlCommand(statement, connection);
-                    command.Parameters.AddWithValue("firstcard", packageData[0].Id);
-                    command.Parameters.AddWithValue("secondcard", packageData[1].Id);
-                    command.Parameters.AddWithValue("thirdcard", packageData[2].Id);
-                    command.Parameters.AddWithValue("forthcard", packageData[3].Id);
-                    command.Parameters.AddWithValue("fifthcard", packageData[4].Id);
-                    int affectedRows = command.ExecuteNonQuery();
-                    if (affectedRows != 0)
+                    connection.Open();
+                    var packageData = JsonSerializer.Deserialize<List<Cards>>(data);
+                    AddCard(packageData);
+                    try
                     {
-                        response.WriteResponse(writer, 201, "package got added");
+                        string statement = "INSERT INTO packages (firstcard, secondcard, thirdcard, forthcard, fifthcard) VALUES (@firstcard, @secondcard, @thirdcard, @forthcard, @fifthcard);";
+                        using var command = new NpgsqlCommand(statement, connection);
+                        command.Parameters.AddWithValue("firstcard", packageData[0].Id);
+                        command.Parameters.AddWithValue("secondcard", packageData[1].Id);
+                        command.Parameters.AddWithValue("thirdcard", packageData[2].Id);
+                        command.Parameters.AddWithValue("forthcard", packageData[3].Id);
+                        command.Parameters.AddWithValue("fifthcard", packageData[4].Id);
+                        int affectedRows = command.ExecuteNonQuery();
+                        if (affectedRows != 0)
+                        {
+                            response.WriteResponse(writer, 201, "package got added");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+            }
+            else
+            {
+                response.WriteResponse(writer, 409, "unauthorized");
             }
         }
         public async Task AddCard(List<Cards> cards)
@@ -122,6 +129,50 @@ namespace MonsterTrading.DB
                     {
                         Console.WriteLine(ex.Message);
                     }
+                }
+            }
+        }
+
+        public async Task DeletePackage(long packageid)
+        {
+            using (var connection = dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string statement = "DELETE FROM packages WHERE id = @id;";
+                    using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("id", packageid);
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                { Console.WriteLine(ex.Message); }
+            }
+        }
+
+        public bool CheckPackagesCount()
+        {
+            using (var connection = dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string statement = "SELECT COUNT(*) FROM packages;";
+                    using var command = new NpgsqlCommand( statement, connection);
+                    long rowCount = (long)command.ExecuteScalar();
+                    if (rowCount > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception ex) 
+                { 
+                    Console.WriteLine(ex.Message); 
+                    return false;
                 }
             }
         }

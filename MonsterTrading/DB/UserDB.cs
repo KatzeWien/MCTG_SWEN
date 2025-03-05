@@ -16,10 +16,12 @@ namespace MonsterTrading.DB
     {
         public DBAccess dBAccess;
         private ServerResponse response;
+        private PackagesAndCardsDB packageDB;
         public UserDB()
         {
             dBAccess = new DBAccess();
             response = new ServerResponse();
+            packageDB = new PackagesAndCardsDB();
         }
 
         public async Task WhichMethod(string method, string data, StreamWriter writer)
@@ -120,7 +122,6 @@ namespace MonsterTrading.DB
                     int elo = reader.GetInt32(3);
                     int wins = reader.GetInt32(4);
                     int losses = reader.GetInt32(5);
-
                     Console.WriteLine($"{username} {password} {coins} {elo} {wins} {losses}");
                     response.WriteResponse(writer, 201, "");
                 }
@@ -165,7 +166,8 @@ namespace MonsterTrading.DB
         public async Task BuyPackage(string name, StreamWriter writer)
         {
             bool canBuy = CheckCoins(name);
-            if (canBuy == true)
+            bool packagesAvailable = packageDB.CheckPackagesCount();
+            if (canBuy == true && packagesAvailable == true)
             {
                 using (var connection = dBAccess.Connect())
                 {
@@ -178,15 +180,17 @@ namespace MonsterTrading.DB
                         var reader = command.ExecuteReader();
                         while (reader.Read())
                         {
+                            long packageid = reader.GetInt64(0);
                             var card1 = reader.GetString(1);
                             var card2 = reader.GetString(2);
                             var card3 = reader.GetString(3);
                             var card4 = reader.GetString(4);
                             var card5 = reader.GetString(5);
                             List<string> cards = new List<string> { card1, card2, card3, card4, card5 };
-                            AddCardstoStack(name, cards, writer);
+                            await AddCardstoStack(name, cards, writer);
+                            await packageDB.DeletePackage(packageid);
                         }
-                        DecreaseCoins(name);
+                        await DecreaseCoins(name);
                     }
                     catch (Exception ex)
                     {
@@ -196,7 +200,14 @@ namespace MonsterTrading.DB
             }
             else
             {
-                response.WriteResponse(writer, 400, "not enough money");
+                if (canBuy == false)
+                {
+                    response.WriteResponse(writer, 400, "not enough money");
+                }
+                else if (packagesAvailable == false)
+                {
+                    response.WriteResponse(writer, 400, "no packages available");
+                }
             }
         }
 
