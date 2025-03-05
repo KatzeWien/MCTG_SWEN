@@ -23,7 +23,7 @@ namespace MonsterTrading.DB
         {
             if (token.Contains("admin"))
             {
-                using (var connection = this.dBAccess.Connect())
+                await using (var connection = this.dBAccess.Connect())
                 {
                     connection.Open();
                     var packageData = JsonSerializer.Deserialize<List<Cards>>(data);
@@ -37,7 +37,7 @@ namespace MonsterTrading.DB
                         command.Parameters.AddWithValue("thirdcard", packageData[2].Id);
                         command.Parameters.AddWithValue("forthcard", packageData[3].Id);
                         command.Parameters.AddWithValue("fifthcard", packageData[4].Id);
-                        int affectedRows = command.ExecuteNonQuery();
+                        int affectedRows = await command.ExecuteNonQueryAsync();
                         if (affectedRows != 0)
                         {
                             response.WriteResponse(writer, 201, "package got added");
@@ -56,7 +56,7 @@ namespace MonsterTrading.DB
         }
         public async Task AddCard(List<Cards> cards)
         {
-            using (var connection = this.dBAccess.Connect())
+            await using (var connection = this.dBAccess.Connect())
             {
                 connection.Open();
                 foreach (var card in cards)
@@ -90,7 +90,7 @@ namespace MonsterTrading.DB
                         command.Parameters.AddWithValue("damage", card.Damage);
                         command.Parameters.AddWithValue("element", card.Element.ToString());
                         command.Parameters.AddWithValue("cardtype", card.CardType.ToString());
-                        command.ExecuteNonQuery();
+                        await command.ExecuteNonQueryAsync();
                     }
                     catch (Exception ex)
                     {
@@ -107,7 +107,7 @@ namespace MonsterTrading.DB
             }
             else
             {
-                using (var connection = this.dBAccess.Connect())
+                await using (var connection = this.dBAccess.Connect())
                 {
                     connection.Open();
                     try
@@ -115,7 +115,7 @@ namespace MonsterTrading.DB
                         string statement = "SELECT c.name FROM stacks s JOIN cards c ON c.id = s.cardid WHERE s.userid = @userid;";
                         using var command = new NpgsqlCommand( statement, connection);
                         command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                        var reader = command.ExecuteReader();
+                        var reader = await command.ExecuteReaderAsync();
                         List<string> cards = new List<string>();
                         while (reader.Read())
                         {
@@ -135,7 +135,7 @@ namespace MonsterTrading.DB
 
         public async Task DeletePackage(long packageid)
         {
-            using (var connection = dBAccess.Connect())
+            await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -143,23 +143,23 @@ namespace MonsterTrading.DB
                     string statement = "DELETE FROM packages WHERE id = @id;";
                     using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("id", packageid);
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
                 catch (Exception ex)
                 { Console.WriteLine(ex.Message); }
             }
         }
 
-        public bool CheckPackagesCount()
+        public async Task<bool> CheckPackagesCount()
         {
-            using (var connection = dBAccess.Connect())
+            await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 try
                 {
                     string statement = "SELECT COUNT(*) FROM packages;";
-                    using var command = new NpgsqlCommand( statement, connection);
-                    long rowCount = (long)command.ExecuteScalar();
+                    await using var command = new NpgsqlCommand( statement, connection);
+                    long rowCount = (long) await command.ExecuteScalarAsync();
                     if (rowCount > 0)
                     {
                         return true;
@@ -173,6 +173,29 @@ namespace MonsterTrading.DB
                 { 
                     Console.WriteLine(ex.Message); 
                     return false;
+                }
+            }
+        }
+
+        public async Task PickRandomCard(string user)
+        {
+            await using (var connection = dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string statement = "SELECT c.name, c.damage, c.element, c.cardtype FROM decks d JOIN cards c ON c.id = d.cardid WHERE d.userid = @userid;";
+                    await using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("userid", user);
+                    var reader = await command.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
             }
         }

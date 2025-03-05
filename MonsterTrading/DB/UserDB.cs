@@ -49,21 +49,21 @@ namespace MonsterTrading.DB
 
         public async Task CreateUser(string data, StreamWriter writer)
         {
-            using (var connection = dBAccess.Connect())
+            await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 var userData = JsonSerializer.Deserialize<User>(data);
                 try
                 {
                     string statement = "INSERT INTO users (username, password, coins, elo, wins, losses) VALUES (@username, @password, @coins, @elo, @wins, @losses);";
-                    using var command = new NpgsqlCommand(statement, connection);
+                    await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("username", userData.Username);
                     command.Parameters.AddWithValue("password", HashPassword(userData.Password));
                     command.Parameters.AddWithValue("coins", 20);
                     command.Parameters.AddWithValue("elo", 100);
                     command.Parameters.AddWithValue("wins", 0);
                     command.Parameters.AddWithValue("losses", 0);
-                    int affectedRows = command.ExecuteNonQuery();
+                    int affectedRows = await command.ExecuteNonQueryAsync();
                     if (affectedRows != 0)
                     {
                         response.WriteResponse(writer, 201, "user got added");
@@ -90,30 +90,32 @@ namespace MonsterTrading.DB
         {
             if (token.Contains(name))
             {
-                using (var connection = dBAccess.Connect())
+                await using (var connection = dBAccess.Connect())
                 {
                     connection.Open();
                     string statement = "SELECT * FROM users WHERE username = @username;";
-                    using var command = new NpgsqlCommand(statement, connection);
+                    await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("username", name);
-                    var reader = command.ExecuteReader();
-                    if (reader.HasRows == false)
-                    {
-                        response.WriteResponse(writer, 404, "User not found");
-                    }
-                    else
-                    {
-                        while (reader.Read())
+                    await using (var reader = await command.ExecuteReaderAsync())
+                    { 
+                        if (reader.HasRows == false)
                         {
-                            string username = reader.GetString(0);
-                            int coins = reader.GetInt32(2);
-                            int elo = reader.GetInt32(3);
-                            int wins = reader.GetInt32(4);
-                            int losses = reader.GetInt32(5);
-                            string bio = reader.GetString(6);
-                            string image = reader.GetString(7);
-                            string givenname = reader.GetString(8); 
-                            response.WriteResponse(writer, 201, $"{username} {coins} {elo} {wins} {losses} {bio} {image} {givenname}");
+                            response.WriteResponse(writer, 404, "User not found");
+                        }
+                        else
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                string username = reader.GetString(0);
+                                int coins = reader.GetInt32(2);
+                                int elo = reader.GetInt32(3);
+                                int wins = reader.GetInt32(4);
+                                int losses = reader.GetInt32(5);
+                                string bio = reader.GetString(6);
+                                string image = reader.GetString(7);
+                                string givenname = reader.GetString(8);
+                                response.WriteResponse(writer, 201, $"{username} {coins} {elo} {wins} {losses} {bio} {image} {givenname}");
+                            }
                         }
                     }
                 }
@@ -126,16 +128,16 @@ namespace MonsterTrading.DB
 
         public async Task LoginUser(string data, StreamWriter writer)
         {
-            using (var connection = dBAccess.Connect())
+            await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 var userData = JsonSerializer.Deserialize<User>(data);
                 try
                 {
                     string statement = "SELECT password FROM users WHERE username = @username;";
-                    using var command = new NpgsqlCommand(statement, connection);
+                    await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("username", userData.Username);
-                    var reader = command.ExecuteScalar();
+                    var reader = await command.ExecuteScalarAsync();
                     string hashedpassword = HashPassword(userData.Password);
                     if (reader != null)
                     {
@@ -162,7 +164,7 @@ namespace MonsterTrading.DB
         public async Task BuyPackage(string name, StreamWriter writer)
         {
             bool canBuy = CheckCoins(name);
-            bool packagesAvailable = packageDB.CheckPackagesCount();
+            bool packagesAvailable = await packageDB.CheckPackagesCount();
             if (canBuy == true && packagesAvailable == true)
             {
                 using (var connection = dBAccess.Connect())
@@ -172,9 +174,8 @@ namespace MonsterTrading.DB
                     {
                         string statement = "SELECT * FROM packages ORDER BY RANDOM() LIMIT 1;";
                         using var command = new NpgsqlCommand(statement, connection);
-                        command.CommandTimeout = 0;
-                        var reader = command.ExecuteReader();
-                        while (reader.Read())
+                        var reader = await command.ExecuteReaderAsync();
+                        while (await reader.ReadAsync())
                         {
                             long packageid = reader.GetInt64(0);
                             var card1 = reader.GetString(1);
@@ -184,7 +185,7 @@ namespace MonsterTrading.DB
                             var card5 = reader.GetString(5);
                             List<string> cards = new List<string> { card1, card2, card3, card4, card5 };
                             await this.stackdeckDB.AddCardstoStack(name, cards, writer);
-                            await packageDB.DeletePackage(packageid);
+                            await this.packageDB.DeletePackage(packageid);
                         }
                         await DecreaseCoins(name);
                     }
@@ -238,15 +239,15 @@ namespace MonsterTrading.DB
 
         public async Task DecreaseCoins(string name)
         {
-            using (var connection = dBAccess.Connect())
+            await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 try
                 {
                     string statement = "UPDATE users SET coins = coins - 5 WHERE username = @username;";
-                    using var command = new NpgsqlCommand(statement, connection);
+                    await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("username", name = name.Split('-')[0]);
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                 }
                 catch (Exception ex)
                 { Console.WriteLine(ex.Message); }
@@ -257,19 +258,19 @@ namespace MonsterTrading.DB
         {
             if (token.Contains(name))
             {
-                using (var connection = dBAccess.Connect())
+                await using (var connection = dBAccess.Connect())
                 {
                     connection.Open();
                     var userData = JsonSerializer.Deserialize<User>(data);
                     try
                     {
                         string statement = "UPDATE users SET bio = @bio, image = @image, name = @name WHERE username = @userid;";
-                        using var command = new NpgsqlCommand(statement, connection);
+                        await using var command = new NpgsqlCommand(statement, connection);
                         command.Parameters.AddWithValue("bio", userData.Bio);
                         command.Parameters.AddWithValue("image", userData.Image);
                         command.Parameters.AddWithValue("name", userData.Name);
                         command.Parameters.AddWithValue("userid", name);
-                        int affectedRows = command.ExecuteNonQuery();
+                        int affectedRows = await command.ExecuteNonQueryAsync();
                         if (affectedRows != 0)
                         {
                             response.WriteResponse(writer, 201, "user got updated");

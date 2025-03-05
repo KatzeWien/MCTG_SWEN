@@ -7,5 +7,7 @@ namespace MonsterTrading
 {
     public class Battles
     {
+        //Method for picking a random card from both users
+
     }
 }

@@ -20,7 +20,7 @@ namespace MonsterTrading.DB
         }
         public async Task CreateDeck(string name, StreamWriter writer, List<string> cards)
         {
-            using (var connection = dBAccess.Connect())
+            await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -29,10 +29,10 @@ namespace MonsterTrading.DB
                     foreach (var card in cards)
                     {
                         string statement = "INSERT INTO decks (userid, cardid) VALUES (@userid, @cardid);";
-                        using var command = new NpgsqlCommand(statement, connection);
+                        await using var command = new NpgsqlCommand(statement, connection);
                         command.Parameters.AddWithValue("userid", name.Split('-')[0]);
                         command.Parameters.AddWithValue("cardid", card);
-                        affectedRows = affectedRows + command.ExecuteNonQuery();
+                        affectedRows = affectedRows + await command.ExecuteNonQueryAsync();
                         if (affectedRows == 4)
                         {
                             response.WriteResponse(writer, 200, "new deck created");
@@ -104,17 +104,17 @@ namespace MonsterTrading.DB
             }
             else
             {
-                using (var connection = this.dBAccess.Connect())
+                await using (var connection = this.dBAccess.Connect())
                 {
                     connection.Open();
                     try
                     {
                         string statement = "SELECT c.name FROM decks d JOIN cards c ON c.id = d.cardid WHERE d.userid = @userid;";
-                        using var command = new NpgsqlCommand(statement, connection);
+                        await using var command = new NpgsqlCommand(statement, connection);
                         command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                        var reader = command.ExecuteReader();
+                        var reader = await command.ExecuteReaderAsync();
                         List<string> cards = new List<string>();
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             string card = reader.GetString(0);
                             cards.Add(card);
@@ -138,7 +138,7 @@ namespace MonsterTrading.DB
         }
         public async Task AddCardstoStack(string name, List<string> cards, StreamWriter writer)
         {
-            using (var connection = dBAccess.Connect())
+            await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -147,10 +147,10 @@ namespace MonsterTrading.DB
                     foreach (var card in cards)
                     {
                         string statement = "INSERT INTO stacks (userid, cardid) VALUES (@userid, @cardid);";
-                        using var command = new NpgsqlCommand(statement, connection);
+                        await using var command = new NpgsqlCommand(statement, connection);
                         command.Parameters.AddWithValue("userid", name.Split('-')[0]);
                         command.Parameters.AddWithValue("cardid", card);
-                        affectedrows = affectedrows + command.ExecuteNonQuery();
+                        affectedrows = affectedrows + await command.ExecuteNonQueryAsync();
                         if (affectedrows == 5)
                         {
                             response.WriteResponse(writer, 201, "package added successfully");

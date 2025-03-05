@@ -16,6 +16,7 @@ namespace MonsterTrading.Server
         private UserDB userDB;
         private PackagesAndCardsDB packageDB;
         private StackDeckDB stackdeckDB;
+        private ScoreStatsDB scoreStatsDB;
         private string? path;
         private string? method;
         private string? body;
@@ -30,6 +31,7 @@ namespace MonsterTrading.Server
             this.packageDB = new PackagesAndCardsDB();
             this.response = new ServerResponse();
             this.stackdeckDB = new StackDeckDB();
+            this.scoreStatsDB = new ScoreStatsDB();
         }
 
         public void Start()
@@ -39,9 +41,13 @@ namespace MonsterTrading.Server
             httpServer.Start();
             while (true)
             {
-                var clientSocket = httpServer.AcceptTcpClient();
+                /*var clientSocket = await httpServer.AcceptTcpClientAsync();
+                _ = Task.Run(() => GetEndpoint(clientSocket));*/
+                TcpClient clientSocket = httpServer.AcceptTcpClient();
                 Console.WriteLine("Hello");
-                GetEndpoint(clientSocket);
+                //GetEndpoint(clientSocket);
+                Thread clientThread = new Thread(() => GetEndpoint(clientSocket));
+                clientThread.Start();
             }
         }
 
@@ -136,7 +142,7 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await this.scoreStatsDB.GetAllElos(writer);
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
@@ -158,11 +164,11 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await this.scoreStatsDB.GetUserStats(this.userToken, writer);   
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    //Implementation 
                 }
             }
             else if (path == "/tradings" || splitpath[1] == "tradings")
