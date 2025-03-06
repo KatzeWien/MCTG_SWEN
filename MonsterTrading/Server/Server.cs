@@ -1,7 +1,9 @@
 ﻿using MonsterTrading.DB;
 using Npgsql;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -17,11 +19,13 @@ namespace MonsterTrading.Server
         private PackagesAndCardsDB packageDB;
         private StackDeckDB stackdeckDB;
         private ScoreStatsDB scoreStatsDB;
+        private Battles battles;
         private string? path;
         private string? method;
         private string? body;
         private string? userToken;
-        private ServerResponse response; 
+        private ServerResponse response;
+        private ConcurrentQueue<string> queue;
 
         public Server(IPAddress address, int port)
         {
@@ -32,22 +36,24 @@ namespace MonsterTrading.Server
             this.response = new ServerResponse();
             this.stackdeckDB = new StackDeckDB();
             this.scoreStatsDB = new ScoreStatsDB();
+            this.battles = new Battles();
+            this.queue = new ConcurrentQueue<string>();
         }
 
-        public void Start()
+        public async Task Start()
         {
             dbAccess.DropAllTable();
             dbAccess.CreateAllTables();
             httpServer.Start();
             while (true)
             {
-                /*var clientSocket = await httpServer.AcceptTcpClientAsync();
-                _ = Task.Run(() => GetEndpoint(clientSocket));*/
-                TcpClient clientSocket = httpServer.AcceptTcpClient();
+                var clientSocket = await httpServer.AcceptTcpClientAsync();
+                _ = Task.Run(() => GetEndpoint(clientSocket));
+                /*TcpClient clientSocket = httpServer.AcceptTcpClient();
                 Console.WriteLine("Hello");
                 //GetEndpoint(clientSocket);
                 Thread clientThread = new Thread(() => GetEndpoint(clientSocket));
-                clientThread.Start();
+                clientThread.Start();*/
             }
         }
 
@@ -98,7 +104,7 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
@@ -109,7 +115,7 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
@@ -124,7 +130,7 @@ namespace MonsterTrading.Server
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await response.WriteResponse(writer, 400, "not implementet");
                 }
             }
             else if (path == "/deck" || splitpath[1] == "deck" || splitpath[1].StartsWith("deck"))
@@ -146,18 +152,42 @@ namespace MonsterTrading.Server
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await response.WriteResponse(writer, 400, "not implementet");
                 }
             }
             else if (path == "/battles" || splitpath[1] == "battles")
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await packageDB.PickRandomCard(userToken);
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    bool isComplete = false;
+                    this.queue.Enqueue(userToken);
+                    string user1 = null;
+                    string user2 = null;
+                    while (!isComplete)
+                    {
+                        lock (this.queue)
+                        {
+                            if (this.queue.Count >= 2)
+                            {
+                                this.queue.TryDequeue(out user1);
+                                this.queue.TryDequeue(out user2);
+                                isComplete = true; // Markiere, dass die Verarbeitung fertig ist
+                            }
+                        }
+                        if (!isComplete)
+                        {
+                            await Task.Delay(100); // Asynchron warten
+                        }
+                        if (queue.Count == 0)
+                        {
+                            await battles.StartBattle(user1, user2, writer);
+                            return;
+                        }
+                    }
                 }
             }
             else if (path == "/stats" || splitpath[1] == "stats")
@@ -175,11 +205,11 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");
+                    await response.WriteResponse(writer, 400, "not implementet");
                 }
                 else if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    response.WriteResponse(writer, 400, "not implementet");   
+                    await response.WriteResponse(writer, 400, "not implementet");   
                 }
             }
         }

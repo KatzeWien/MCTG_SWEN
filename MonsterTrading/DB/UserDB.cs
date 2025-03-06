@@ -66,13 +66,13 @@ namespace MonsterTrading.DB
                     int affectedRows = await command.ExecuteNonQueryAsync();
                     if (affectedRows != 0)
                     {
-                        response.WriteResponse(writer, 201, "user got added");
+                        await response.WriteResponse(writer, 201, "user got added");
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    response.WriteResponse(writer, 409, "failure during add user");
+                    await response.WriteResponse(writer, 409, "failure during add user");
                 }
             }
         }
@@ -100,7 +100,7 @@ namespace MonsterTrading.DB
                     { 
                         if (reader.HasRows == false)
                         {
-                            response.WriteResponse(writer, 404, "User not found");
+                            await response.WriteResponse(writer, 404, "User not found");
                         }
                         else
                         {
@@ -114,7 +114,7 @@ namespace MonsterTrading.DB
                                 string bio = reader.GetString(6);
                                 string image = reader.GetString(7);
                                 string givenname = reader.GetString(8);
-                                response.WriteResponse(writer, 201, $"{username} {coins} {elo} {wins} {losses} {bio} {image} {givenname}");
+                                await response.WriteResponse(writer, 201, $"{username} {coins} {elo} {wins} {losses} {bio} {image} {givenname}");
                             }
                         }
                     }
@@ -122,7 +122,7 @@ namespace MonsterTrading.DB
             }
             else
             {
-                response.WriteResponse(writer, 401, "unauthorized");
+                await response.WriteResponse(writer, 401, "unauthorized");
             }
         }
 
@@ -145,18 +145,18 @@ namespace MonsterTrading.DB
                         if (hashedpassword == password)
                         {
                             string token = $"{userData.Username}-mtcgtoken";
-                            response.WriteResponse(writer, 200, $"Login Suceessfull {token}");
+                            await response.WriteResponse(writer, 200, $"Login Suceessfull {token}");
                         }
                         else
                         {
-                            response.WriteResponse(writer, 401, "Unauthorized");
+                            await response.WriteResponse(writer, 401, "Unauthorized");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    response.WriteResponse(writer, 400, "something went wrong");
+                    await response.WriteResponse(writer, 400, "something went wrong");
                 }
             }
         }
@@ -199,11 +199,11 @@ namespace MonsterTrading.DB
             {
                 if (canBuy == false)
                 {
-                    response.WriteResponse(writer, 400, "not enough money");
+                    await response.WriteResponse(writer, 400, "not enough money");
                 }
                 else if (packagesAvailable == false)
                 {
-                    response.WriteResponse(writer, 400, "no packages available");
+                    await response.WriteResponse(writer, 400, "no packages available");
                 }
             }
         }
@@ -273,19 +273,19 @@ namespace MonsterTrading.DB
                         int affectedRows = await command.ExecuteNonQueryAsync();
                         if (affectedRows != 0)
                         {
-                            response.WriteResponse(writer, 201, "user got updated");
+                            await response.WriteResponse(writer, 201, "user got updated");
                         }
                     }
                     catch(Exception ex)
                     { 
                         Console.WriteLine(ex.Message);
-                        response.WriteResponse(writer, 409, "failure during add user");
+                        await response.WriteResponse(writer, 409, "failure during add user");
                     }
                 }
             }
             else
             {
-                response.WriteResponse(writer, 409, "unauthorized");
+                await response.WriteResponse(writer, 409, "unauthorized");
             }
         }
     }

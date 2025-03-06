@@ -8,11 +8,11 @@ namespace MonsterTrading.Server
 {
     public class ServerResponse
     {
-        public void WriteResponse(StreamWriter writer, int statusCode, string message)
+        public async Task WriteResponse(StreamWriter writer, int statusCode, string message)
         {
             string test = $"HTTP/1.1 {statusCode} - {message}";
-            writer.WriteLine(test);
-            writer.Flush();
+            await writer.WriteLineAsync(test);
+            await writer.FlushAsync();
             Console.WriteLine(test);
         }
     }

@@ -35,7 +35,7 @@ namespace MonsterTrading.DB
                         affectedRows = affectedRows + await command.ExecuteNonQueryAsync();
                         if (affectedRows == 4)
                         {
-                            response.WriteResponse(writer, 200, "new deck created");
+                            await response.WriteResponse(writer, 200, "new deck created");
                         }
                     }
                 }
@@ -69,7 +69,7 @@ namespace MonsterTrading.DB
                 var cards = JsonSerializer.Deserialize<List<string>>(data);
                 if (cards.Count != 4)
                 {
-                    response.WriteResponse(writer, 400, "only 3 cards");
+                    await response.WriteResponse(writer, 400, "only 3 cards");
                 }
                 else
                 {
@@ -100,7 +100,7 @@ namespace MonsterTrading.DB
         {
             if (name == null)
             {
-                response.WriteResponse(writer, 409, "unauthorized");
+                await response.WriteResponse(writer, 409, "unauthorized");
             }
             else
             {
@@ -122,11 +122,11 @@ namespace MonsterTrading.DB
                         string listOfCards = string.Join(", ", cards);
                         if (listOfCards == "")
                         {
-                            response.WriteResponse(writer, 200, "list is empty");
+                            await response.WriteResponse(writer, 200, "list is empty");
                         }
                         else
                         {
-                            response.WriteResponse(writer, 201, listOfCards);
+                            await response.WriteResponse(writer, 201, listOfCards);
                         }
                     }
                     catch (Exception ex)
@@ -153,7 +153,7 @@ namespace MonsterTrading.DB
                         affectedrows = affectedrows + await command.ExecuteNonQueryAsync();
                         if (affectedrows == 5)
                         {
-                            response.WriteResponse(writer, 201, "package added successfully");
+                            await response.WriteResponse(writer, 201, "package added successfully");
                         }
                     }
                 }

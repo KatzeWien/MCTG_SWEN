@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static MonsterTrading.Cards;
 
 namespace MonsterTrading.DB
 {
@@ -40,7 +41,7 @@ namespace MonsterTrading.DB
                         int affectedRows = await command.ExecuteNonQueryAsync();
                         if (affectedRows != 0)
                         {
-                            response.WriteResponse(writer, 201, "package got added");
+                            await response.WriteResponse(writer, 201, "package got added");
                         }
                     }
                     catch (Exception ex)
@@ -51,7 +52,7 @@ namespace MonsterTrading.DB
             }
             else
             {
-                response.WriteResponse(writer, 409, "unauthorized");
+                await response.WriteResponse(writer, 409, "unauthorized");
             }
         }
         public async Task AddCard(List<Cards> cards)
@@ -103,7 +104,7 @@ namespace MonsterTrading.DB
         {
             if (name == null)
             {
-                response.WriteResponse(writer, 409, "unauthorized");
+                await response.WriteResponse(writer, 409, "unauthorized");
             }
             else
             {
@@ -123,7 +124,7 @@ namespace MonsterTrading.DB
                             cards.Add(card);
                         }
                         string listOfCards = string.Join(", ", cards);
-                        response.WriteResponse(writer, 201, listOfCards);
+                        await response.WriteResponse(writer, 201, listOfCards);
                     }
                     catch (Exception ex)
                     {
@@ -177,25 +178,38 @@ namespace MonsterTrading.DB
             }
         }
 
-        public async Task PickRandomCard(string user)
+        public async Task<List<Cards>> PickRandomCard(string user)
         {
             await using (var connection = dBAccess.Connect())
             {
                 connection.Open();
                 try
                 {
-                    string statement = "SELECT c.name, c.damage, c.element, c.cardtype FROM decks d JOIN cards c ON c.id = d.cardid WHERE d.userid = @userid;";
+                    List<Cards> cards = new List<Cards>();
+                    string statement = "SELECT c.id, c.name, c.damage, c.element, c.cardtype FROM decks d JOIN cards c ON c.id = d.cardid WHERE d.userid = @userid ORDER BY RANDOM() LIMIT 1;";
                     await using var command = new NpgsqlCommand(statement, connection);
-                    command.Parameters.AddWithValue("userid", user);
+                    command.Parameters.AddWithValue("userid", user.Split('-')[0]);
                     var reader = await command.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {
-
+                        string elementString = reader.GetString(3);
+                        string cardString = reader.GetString(4);
+                        var item = new Cards
+                        (
+                            reader.GetString(0),
+                            reader.GetString(1),
+                            reader.GetDouble(2),
+                            Enum.TryParse(elementString, true, out Elements element) ? element : default,
+                            Enum.TryParse(cardString, true, out CardTypes cardTypes) ? cardTypes : default
+                        );
+                        cards.Add(item);
                     }
+                    return cards;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    return null;
                 }
             }
         }

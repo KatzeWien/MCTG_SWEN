@@ -34,13 +34,13 @@ namespace MonsterTrading.DB
                         int elo = reader.GetInt32(0);
                         int wins = reader.GetInt32(1);
                         int losses = reader.GetInt32(2);
-                        response.WriteResponse(writer, 201, $"Elo: {elo} Wins: {wins} Losses: {losses}");
+                        await response.WriteResponse(writer, 201, $"Elo: {elo} Wins: {wins} Losses: {losses}");
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    response.WriteResponse(writer, 400, "something went wrong");
+                    await response.WriteResponse(writer, 400, "something went wrong");
                 }
             }
         }
@@ -64,12 +64,12 @@ namespace MonsterTrading.DB
                         users = reader.GetString(1);
                         result = result + string.Join(", ", $"{users}: {elo} ");
                     }
-                    response.WriteResponse(writer, 201, result);
+                    await response.WriteResponse(writer, 201, result);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    response.WriteResponse(writer, 400, "something went wrong");
+                    await response.WriteResponse(writer, 400, "something went wrong");
                 }
             }
         }
