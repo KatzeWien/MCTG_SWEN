@@ -19,7 +19,7 @@ namespace MonsterTrading.DB
         }
         public async Task GetUserStats(string token, StreamWriter writer)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 token = token.Split('-')[0];
@@ -32,9 +32,9 @@ namespace MonsterTrading.DB
                     while (await reader.ReadAsync())
                     {
                         int elo = reader.GetInt32(0);
-                        int wins = reader.GetInt32(1);
-                        int losses = reader.GetInt32(2);
-                        await response.WriteResponse(writer, 201, $"Elo: {elo} Wins: {wins} Losses: {losses}");
+                        int losses = reader.GetInt32(1);
+                        int wins = reader.GetInt32(2);
+                        await response.WriteResponse(writer, 201, $"User: {token} Elo: {elo} Wins: {wins} Losses: {losses}");
                     }
                 }
                 catch (Exception ex)
@@ -47,7 +47,7 @@ namespace MonsterTrading.DB
 
         public async Task GetAllElos(StreamWriter writer)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try

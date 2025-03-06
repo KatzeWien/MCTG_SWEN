@@ -9,12 +9,14 @@ namespace MonsterTrading
 {
     public class Battles
     {
-        PackagesAndCardsDB packagesAndCardsDB;
-        ServerResponse response;
+        private PackagesAndCardsDB packagesAndCardsDB;
+        private ServerResponse response;
+        private UserDB userDB;
         public Battles()
         {
             this.packagesAndCardsDB = new PackagesAndCardsDB();
             this.response = new ServerResponse();
+            this.userDB = new UserDB();
         }
         public async Task StartBattle(string user1, string user2, StreamWriter writer)
         {
@@ -28,11 +30,16 @@ namespace MonsterTrading
                 if(winner == user1)
                 {
                     await response.WriteResponse(writer, 201, $"Winner: {winner} with {player1card.Id} vs {player2card.Id}");
+                    await userDB.WinnerOfBattle(user1);
+                    await userDB.LosserOfBattle(user2);
                 }
                 else
                 {
                     await response.WriteResponse(writer, 201, $"Winner: {winner} with {player2card.Id} vs {player1card.Id}");
+                    await userDB.WinnerOfBattle(user2);
+                    await userDB.LosserOfBattle(user1);
                 }
+
             }
             else
             {

@@ -24,7 +24,7 @@ namespace MonsterTrading.DB
         {
             if (token.Contains("admin"))
             {
-                await using (var connection = this.dBAccess.Connect())
+                await using (var connection = await this.dBAccess.Connect())
                 {
                     connection.Open();
                     var packageData = JsonSerializer.Deserialize<List<Cards>>(data);
@@ -57,7 +57,7 @@ namespace MonsterTrading.DB
         }
         public async Task AddCard(List<Cards> cards)
         {
-            await using (var connection = this.dBAccess.Connect())
+            await using (var connection = await this.dBAccess.Connect())
             {
                 connection.Open();
                 foreach (var card in cards)
@@ -108,7 +108,7 @@ namespace MonsterTrading.DB
             }
             else
             {
-                await using (var connection = this.dBAccess.Connect())
+                await using (var connection = await this.dBAccess.Connect())
                 {
                     connection.Open();
                     try
@@ -136,7 +136,7 @@ namespace MonsterTrading.DB
 
         public async Task DeletePackage(long packageid)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -153,7 +153,7 @@ namespace MonsterTrading.DB
 
         public async Task<bool> CheckPackagesCount()
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -180,7 +180,7 @@ namespace MonsterTrading.DB
 
         public async Task<List<Cards>> PickRandomCard(string user)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try

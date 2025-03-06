@@ -15,12 +15,12 @@ namespace MonsterTrading.DB
             connString = "Host=localhost;Username=if23b258;Password=123456;Database=mtcg";
         }
 
-        public NpgsqlConnection Connect()
+        public async Task<NpgsqlConnection> Connect()
         {
             using var conn = new NpgsqlConnection(connString);
             try
             {
-                conn.Open();
+                await conn.OpenAsync();
                 Console.WriteLine("DB Connection successful");
                 return new NpgsqlConnection(connString);
             }
@@ -31,18 +31,18 @@ namespace MonsterTrading.DB
             }
         }
 
-        public void DropAllTable()
+        public async Task DropAllTable()
         {
             try
             {
-                string[] sqlDel = File.ReadAllLines("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\DB\\DropAllTables.txt");
-                using (var connection = Connect())
+                string[] sqlDel = await File.ReadAllLinesAsync("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\DB\\DropAllTables.txt");
+                using (var connection = await Connect())
                 {
                     connection.Open();
                     foreach (string sql in sqlDel)
                     {
                         using var command = new NpgsqlCommand(sql, connection);
-                        command.ExecuteNonQuery();
+                        await command.ExecuteNonQueryAsync();
                     }
                 }
             }
@@ -52,12 +52,12 @@ namespace MonsterTrading.DB
             }
         }
 
-        public void CreateAllTables()
+        public async Task CreateAllTables()
         {
             try
             {
-                string script = File.ReadAllText("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\DB\\AddTables.txt");
-                using (var connection = Connect())
+                string script = await File.ReadAllTextAsync("C:\\Users\\danie\\Documents\\Fachhochschule\\FHTW\\3. Semester\\C#\\MonsterTrading\\MonsterTrading\\DB\\AddTables.txt");
+                using (var connection = await Connect())
                 {
                     connection.Open();
                     using var command = new NpgsqlCommand(script, connection);

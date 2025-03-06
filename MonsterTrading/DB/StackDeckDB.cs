@@ -20,7 +20,7 @@ namespace MonsterTrading.DB
         }
         public async Task CreateDeck(string name, StreamWriter writer, List<string> cards)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -47,7 +47,7 @@ namespace MonsterTrading.DB
         }
         public async Task UpdateDeck(string name, StreamWriter writer, List<string> data)
         {
-            using (var connection = dBAccess.Connect())
+            using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -64,7 +64,7 @@ namespace MonsterTrading.DB
         }
         public async Task CheckDeckSize(string name, string data, StreamWriter writer)
         {
-            using (var connection = dBAccess.Connect())
+            using (var connection = await dBAccess.Connect())
             {
                 var cards = JsonSerializer.Deserialize<List<string>>(data);
                 if (cards.Count != 4)
@@ -104,7 +104,7 @@ namespace MonsterTrading.DB
             }
             else
             {
-                await using (var connection = this.dBAccess.Connect())
+                await using (var connection = await this.dBAccess.Connect())
                 {
                     connection.Open();
                     try
@@ -138,7 +138,7 @@ namespace MonsterTrading.DB
         }
         public async Task AddCardstoStack(string name, List<string> cards, StreamWriter writer)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try

@@ -1,5 +1,6 @@
 ﻿using MonsterTrading.Server;
 using Npgsql;
+using Npgsql.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml.Linq;
 
 namespace MonsterTrading.DB
 {
@@ -26,9 +29,9 @@ namespace MonsterTrading.DB
             this.stackdeckDB = new StackDeckDB();
         }
 
-        public void ShowAllUser()
+        /*public void ShowAllUser()
         {
-            using (var connection = dBAccess.Connect())
+            using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 string statement = "SELECT * FROM users;";
@@ -45,11 +48,11 @@ namespace MonsterTrading.DB
                     Console.WriteLine($"{username} {coins} {elo} {wins} {losses}");
                 }
             }
-        }
+        }*/
 
         public async Task CreateUser(string data, StreamWriter writer)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 var userData = JsonSerializer.Deserialize<User>(data);
@@ -90,7 +93,7 @@ namespace MonsterTrading.DB
         {
             if (token.Contains(name))
             {
-                await using (var connection = dBAccess.Connect())
+                await using (var connection = await dBAccess.Connect())
                 {
                     connection.Open();
                     string statement = "SELECT * FROM users WHERE username = @username;";
@@ -128,7 +131,7 @@ namespace MonsterTrading.DB
 
         public async Task LoginUser(string data, StreamWriter writer)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 var userData = JsonSerializer.Deserialize<User>(data);
@@ -163,11 +166,11 @@ namespace MonsterTrading.DB
 
         public async Task BuyPackage(string name, StreamWriter writer)
         {
-            bool canBuy = CheckCoins(name);
+            bool canBuy = await CheckCoins(name);
             bool packagesAvailable = await packageDB.CheckPackagesCount();
             if (canBuy == true && packagesAvailable == true)
             {
-                using (var connection = dBAccess.Connect())
+                using (var connection = await dBAccess.Connect())
                 {
                     connection.Open();
                     try
@@ -208,9 +211,9 @@ namespace MonsterTrading.DB
             }
         }
 
-        public bool CheckCoins(string name)
+        public async Task<bool> CheckCoins(string name)
         {
-            using (var connection = dBAccess.Connect())
+            using (var connection = await dBAccess.Connect())
             {
                 name = name.Split('-')[0];
                 connection.Open();
@@ -239,7 +242,7 @@ namespace MonsterTrading.DB
 
         public async Task DecreaseCoins(string name)
         {
-            await using (var connection = dBAccess.Connect())
+            await using (var connection = await dBAccess.Connect())
             {
                 connection.Open();
                 try
@@ -258,7 +261,7 @@ namespace MonsterTrading.DB
         {
             if (token.Contains(name))
             {
-                await using (var connection = dBAccess.Connect())
+                await using (var connection = await dBAccess.Connect())
                 {
                     connection.Open();
                     var userData = JsonSerializer.Deserialize<User>(data);
@@ -286,6 +289,44 @@ namespace MonsterTrading.DB
             else
             {
                 await response.WriteResponse(writer, 409, "unauthorized");
+            }
+        }
+        public async Task LosserOfBattle(string user)
+        {
+            await using (var connection = await dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string statement = "UPDATE users SET losses = losses + 1, elo = elo - 5 WHERE username = @userid;";
+                    await using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("userid", user = user.Split('-')[0]);
+                    await command.ExecuteNonQueryAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        public async Task WinnerOfBattle(string user)
+        {
+            await using (var connection = await dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    //Special Feature Winner get one coin
+                    string statement = "UPDATE users SET wins = wins + 1, elo = elo + 3, coins = coins + 1 WHERE username = @userid;";
+                    await using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("userid", user = user.Split('-')[0]);
+                    await command.ExecuteNonQueryAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
     }
