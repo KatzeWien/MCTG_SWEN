@@ -55,7 +55,7 @@ namespace MonsterTrading.DB
                     int elo;
                     string users;
                     string result = null;
-                    string statement = "SELECT elo, username FROM users ORDER BY elo;";
+                    string statement = "SELECT elo, username FROM users ORDER BY elo DESC;";
                     await using var command = new NpgsqlCommand(statement, connection);
                     var reader = await command.ExecuteReaderAsync();
                     while (await reader.ReadAsync())

@@ -42,8 +42,8 @@ namespace MonsterTrading.Server
 
         public async Task Start()
         {
-            //await dbAccess.DropAllTable();
-            //await dbAccess.CreateAllTables();
+            await dbAccess.DropAllTable();
+            await dbAccess.CreateAllTables();
             httpServer.Start();
             while (true)
             {

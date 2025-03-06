@@ -1,5 +1,6 @@
 ﻿using MonsterTrading.Server;
 using Npgsql;
+using Npgsql.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -164,5 +165,44 @@ namespace MonsterTrading.DB
             }
         }
 
+        public async Task DeleteFromStack(Cards cards, string name)
+        {
+            await using (var connection = await dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string statement = "DELETE FROM stacks WHERE userid = @userid AND cardid = @cardid;";
+                    await using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("userid", name.Split('-')[0]);
+                    command.Parameters.AddWithValue("cardid", cards.Id);
+                    await command.ExecuteNonQueryAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        public async Task AddWinnerCard(Cards cards, string name)
+        {
+            await using (var connection = await dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string statement = "INSERT INTO stacks (userid, cardid) VALUES (@userid, @cardid);";
+                    await using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("userid", name.Split('-')[0]);
+                    command.Parameters.AddWithValue("cardid", cards.Id);
+                    await command.ExecuteNonQueryAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
     }
 }

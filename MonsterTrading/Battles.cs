@@ -30,14 +30,14 @@ namespace MonsterTrading
                 if(winner == user1)
                 {
                     await response.WriteResponse(writer, 201, $"Winner: {winner} with {player1card.Id} vs {player2card.Id}");
-                    await userDB.WinnerOfBattle(user1);
-                    await userDB.LosserOfBattle(user2);
+                    await userDB.WinnerOfBattle(user1, player2card);
+                    await userDB.LosserOfBattle(user2, player2card);
                 }
                 else
                 {
                     await response.WriteResponse(writer, 201, $"Winner: {winner} with {player2card.Id} vs {player1card.Id}");
-                    await userDB.WinnerOfBattle(user2);
-                    await userDB.LosserOfBattle(user1);
+                    await userDB.WinnerOfBattle(user2, player1card);
+                    await userDB.LosserOfBattle(user1, player1card);
                 }
 
             }

@@ -21,12 +21,14 @@ namespace MonsterTrading.DB
         private ServerResponse response;
         private PackagesAndCardsDB packageDB;
         private StackDeckDB stackdeckDB;
+        private PackagesAndCardsDB cardsDB;
         public UserDB()
         {
             this.dBAccess = new DBAccess();
             this.response = new ServerResponse();
             this.packageDB = new PackagesAndCardsDB();
             this.stackdeckDB = new StackDeckDB();
+            this.cardsDB = new PackagesAndCardsDB();
         }
 
         /*public void ShowAllUser()
@@ -291,7 +293,7 @@ namespace MonsterTrading.DB
                 await response.WriteResponse(writer, 409, "unauthorized");
             }
         }
-        public async Task LosserOfBattle(string user)
+        public async Task LosserOfBattle(string user, Cards card)
         {
             await using (var connection = await dBAccess.Connect())
             {
@@ -302,6 +304,7 @@ namespace MonsterTrading.DB
                     await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("userid", user = user.Split('-')[0]);
                     await command.ExecuteNonQueryAsync();
+                    await stackdeckDB.DeleteFromStack(card, user);
                 }
                 catch (Exception ex)
                 {
@@ -310,7 +313,7 @@ namespace MonsterTrading.DB
             }
         }
 
-        public async Task WinnerOfBattle(string user)
+        public async Task WinnerOfBattle(string user, Cards card)
         {
             await using (var connection = await dBAccess.Connect())
             {
@@ -322,12 +325,13 @@ namespace MonsterTrading.DB
                     await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("userid", user = user.Split('-')[0]);
                     await command.ExecuteNonQueryAsync();
+                    await stackdeckDB.AddWinnerCard(card, user);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-            }
+            } 
         }
     }
 }
