@@ -3,7 +3,6 @@ using Npgsql;
 using System.Data.Common;
 using MonsterTrading.DB;
 using System.IO;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 [TestFixture]
 public class UserDBTests
@@ -49,7 +48,7 @@ public class UserDBTests
     }
 
     [Test]
-    public async Task CheckCoins_ShouldReturnTrue_WhenCoinsAreSufficient()
+    public async Task CheckCoinsShouldReturnTrueWhenCoinsAreSufficient()
     {
         // Arrange
         string username = "testuser1";
@@ -67,7 +66,7 @@ public class UserDBTests
     }
 
     [Test]
-    public async Task CheckCoins_ShouldReturnFalse_WhenCoinsAreInsufficient()
+    public async Task CheckCoinsShouldReturnFalseWhenCoinsAreInsufficient()
     {
         // Arrange
         string username = "testuser2";

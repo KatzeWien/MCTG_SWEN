@@ -15,7 +15,7 @@ namespace MonsterTrading.Server
     public class Server
     {
         private TcpListener httpServer;
-        private DBAccess dbAccess;
+        public DBAccess dbAccess;
         private UserDB userDB;
         private PackagesAndCardsDB packageDB;
         private StackDeckDB stackdeckDB;
