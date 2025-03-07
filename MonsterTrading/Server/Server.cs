@@ -49,11 +49,6 @@ namespace MonsterTrading.Server
             {
                 var clientSocket = await httpServer.AcceptTcpClientAsync();
                 _ = Task.Run(() => GetEndpoint(clientSocket));
-                /*TcpClient clientSocket = httpServer.AcceptTcpClient();
-                Console.WriteLine("Hello");
-                //GetEndpoint(clientSocket);
-                Thread clientThread = new Thread(() => GetEndpoint(clientSocket));
-                clientThread.Start();*/
             }
         }
 

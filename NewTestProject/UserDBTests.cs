@@ -3,6 +3,7 @@ using Npgsql;
 using System.Data.Common;
 using MonsterTrading.DB;
 using System.IO;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 [TestFixture]
 public class UserDBTests
@@ -106,12 +107,42 @@ public class UserDBTests
         using var writer = new StreamWriter(memorystream);
         await _userDB.LoginUser(data, writer);
         writer.Flush();
-        memorystream.Position = 0; // Zurück zum Anfang des Streams
+        memorystream.Position = 0;
 
         using var reader = new StreamReader(memorystream);
         string result = await reader.ReadToEndAsync();
 
-        // Assert
         Assert.IsTrue(result.Contains("Unauthorized"));
+    }
+
+    [Test]
+    public async Task GetUnauthorizedWithWrongToken()
+    {
+        string user = "kienboec";
+        string token = "admin-token";
+        using var memorystream = new MemoryStream();
+        using var writer = new StreamWriter(memorystream);
+        await _userDB.ShowSpecificUser(user, writer, token);
+        writer.Flush();
+        memorystream.Position = 0;
+
+        using var reader = new StreamReader(memorystream);
+        string result = await reader.ReadToEndAsync();
+
+        Assert.IsTrue(result.Contains("unauthorized"));
+    }
+
+    [Test]
+    public async Task CreateUserTest()
+    {
+        string data = "{\"Username\":\"kienboec\", \"Password\":\"daniel\"}";
+        using var memorystream = new MemoryStream();
+        using var writer = new StreamWriter(memorystream);
+        await _userDB.CreateUser(data, writer);
+        writer.Flush();
+        memorystream.Position = 0;
+        using var reader = new StreamReader(memorystream);
+        string result = await reader.ReadToEndAsync();
+        Assert.IsTrue(result.Contains("user got added"));
     }
 }
