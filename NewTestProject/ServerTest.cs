@@ -30,6 +30,7 @@ namespace NewTestProject
         [TearDown]
         public void Teardown()
         {
+            this.server.dbAccess.DropAllTable();
             connection.Close();
         }
 
