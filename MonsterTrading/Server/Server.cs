@@ -1,4 +1,5 @@
-﻿using MonsterTrading.DB;
+﻿using MonsterTrading.BuisnessLogic;
+using MonsterTrading.DB;
 using Npgsql;
 using System;
 using System.Collections.Concurrent;

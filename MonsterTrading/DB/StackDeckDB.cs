@@ -1,4 +1,5 @@
-﻿using MonsterTrading.Server;
+﻿using MonsterTrading.Models;
+using MonsterTrading.Server;
 using Npgsql;
 using Npgsql.Internal;
 using System;

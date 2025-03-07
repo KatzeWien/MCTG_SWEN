@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTrading
+namespace MonsterTrading.Models
 {
     public class Packages
     {

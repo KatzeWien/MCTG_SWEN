@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MonsterTrading
+namespace MonsterTrading.Models
 {
     public class Cards
     {
@@ -25,11 +25,11 @@ namespace MonsterTrading
         public CardTypes CardType { get; set; }
         public Cards(string id, string name, double damage, Elements element, CardTypes cardType)
         {
-            this.Id = id;
-            this.Name = name;
-            this.Damage = damage;
-            this.Element = element;
-            this.CardType = cardType;
+            Id = id;
+            Name = name;
+            Damage = damage;
+            Element = element;
+            CardType = cardType;
         }
     }
 }

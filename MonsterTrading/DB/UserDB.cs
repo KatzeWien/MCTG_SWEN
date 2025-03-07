@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml.Linq;
+using MonsterTrading.Models;
 
 namespace MonsterTrading.DB
 {

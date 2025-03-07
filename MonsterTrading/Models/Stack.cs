@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MonsterTrading
+namespace MonsterTrading.Models
 {
-    public class Deck
+    public class Stack
     {
         public List<User> users;
         public List<Cards> cards;
