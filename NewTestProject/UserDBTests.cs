@@ -2,6 +2,7 @@
 using Npgsql;
 using System.Data.Common;
 using MonsterTrading.DB;
+using System.IO;
 
 [TestFixture]
 public class UserDBTests
@@ -47,7 +48,7 @@ public class UserDBTests
     }
 
     [Test]
-    public void CheckCoins_ShouldReturnTrue_WhenCoinsAreSufficient()
+    public async Task CheckCoins_ShouldReturnTrue_WhenCoinsAreSufficient()
     {
         // Arrange
         string username = "testuser1";
@@ -58,14 +59,14 @@ public class UserDBTests
         command.ExecuteNonQuery();
 
         // Act
-        bool result = _userDB.CheckCoins(username);
+        bool result = await _userDB.CheckCoins(username);
 
         // Assert
         Assert.IsTrue(result);
     }
 
     [Test]
-    public void CheckCoins_ShouldReturnFalse_WhenCoinsAreInsufficient()
+    public async Task CheckCoins_ShouldReturnFalse_WhenCoinsAreInsufficient()
     {
         // Arrange
         string username = "testuser2";
@@ -76,7 +77,7 @@ public class UserDBTests
         command.ExecuteNonQuery();
 
         // Act
-        bool result = _userDB.CheckCoins(username);
+        bool result = await _userDB.CheckCoins(username);
 
         // Assert
         Assert.IsFalse(result);
@@ -88,5 +89,29 @@ public class UserDBTests
         string password = "testpassword";
         string hashedPassword = _userDB.HashPassword(password);
         Assert.AreNotEqual(hashedPassword, password);
+    }
+
+    [Test]
+    public async Task CheckLoginWithFalseCred()
+    {
+        string username = "kienboec";
+        string password = _userDB.HashPassword("daniel");
+        var command = _connection.CreateCommand();
+        command.CommandText = "INSERT INTO users (username, password) VALUES (@username, @password);";
+        command.Parameters.Add(new NpgsqlParameter("@username", username));
+        command.Parameters.Add(new NpgsqlParameter("@password", password));
+        command.ExecuteNonQuery();
+        string data = "{\"Username\":\"kienboec\", \"Password\":\"falsches\"}";
+        using var memorystream = new MemoryStream();
+        using var writer = new StreamWriter(memorystream);
+        await _userDB.LoginUser(data, writer);
+        writer.Flush();
+        memorystream.Position = 0; // Zurück zum Anfang des Streams
+
+        using var reader = new StreamReader(memorystream);
+        string result = await reader.ReadToEndAsync();
+
+        // Assert
+        Assert.IsTrue(result.Contains("Unauthorized"));
     }
 }
