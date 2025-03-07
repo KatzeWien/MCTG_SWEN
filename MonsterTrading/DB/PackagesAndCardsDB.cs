@@ -12,7 +12,7 @@ namespace MonsterTrading.DB
 {
     public class PackagesAndCardsDB
     {
-        private DBAccess dBAccess;
+        public DBAccess dBAccess;
         private ServerResponse response;
         public PackagesAndCardsDB()
         {
