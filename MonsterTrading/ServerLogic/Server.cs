@@ -45,7 +45,8 @@ namespace MonsterTrading.Server
 
         public async Task Start()
         {
-            await dbAccess.DropAllTable();
+            //activate DropAllTable when you want to test the curl. For Persistence of DB leave in enabled
+            //await dbAccess.DropAllTable();
             await dbAccess.CreateAllTables();
             httpServer.Start();
             while (true)
