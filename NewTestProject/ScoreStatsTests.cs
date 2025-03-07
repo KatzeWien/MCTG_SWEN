@@ -73,7 +73,8 @@ namespace NewTestProject
             Assert.IsTrue(result.Contains("201"));
         }
 
-        /*[Test]
+        //This test is not working. I don't know why 
+        [Test]
         public async Task GetUserStatsTest()
         {
             string token = "user1-token";
@@ -94,6 +95,6 @@ namespace NewTestProject
             string result = await reader.ReadToEndAsync();
 
             Assert.IsTrue(result.Contains("201"));
-        }*/
+        }
     }
 }
