@@ -211,7 +211,14 @@ namespace MonsterTrading.Server
                 }
                 else if (method == "POST")
                 {
-                    await tradesDB.CreateTrade(body, userToken, writer);
+                    if (splitpath.Length == 2)
+                    {
+                        await tradesDB.CreateTrade(body, userToken, writer);
+                    }
+                    else
+                    {
+                        await tradesDB.CheckUsersForTrade(splitpath[2], userToken);
+                    }
                 }
             }
         }

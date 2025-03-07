@@ -2,6 +2,7 @@
 using MonsterTrading.Server;
 using Newtonsoft.Json.Linq;
 using Npgsql;
+using Npgsql.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -132,6 +133,61 @@ namespace MonsterTrading.DB
                         Console.WriteLine(ex.Message);
                         await response.WriteResponse(writer, 400, "something went wrong");
                     }
+                }
+            }
+        }
+
+        public async Task StartTrade(string tradeid, string userToken, StreamWriter writer)
+        {
+            if (userToken == null)
+            {
+                await response.WriteResponse(writer, 409, "unauthorized");
+            }
+            else
+            {
+                if(await CheckUsersForTrade(tradeid, userToken) == false)
+                {
+                    await response.WriteResponse(writer, 409, "authorized. no trading with yourself");
+                }
+                else
+                {
+                    await response.WriteResponse(writer, 400, "not implemented yet");
+                }
+            }
+        }
+        
+        public async Task<bool> CheckUsersForTrade(string tradeid, string usertoken)
+        {
+            await using (var connection = await dBAccess.Connect())
+            {
+                connection.Open();
+                try
+                {
+                    string useridDB = null;
+                    string username = usertoken.Split('-')[0].Trim();
+                    string statement = "SELECT userid FROM trades WHERE id = @tradeid;";
+                    await using var command = new NpgsqlCommand(statement, connection);
+                    command.Parameters.AddWithValue("tradeid", tradeid);
+                    var reader = await command.ExecuteReaderAsync();
+                    while (reader.Read())
+                    {
+                        useridDB = reader.GetString(0).Trim();
+                    }
+                    reader.Close();
+                    if(username == useridDB)
+                    {
+                        return false;
+                        break;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return false;
                 }
             }
         }
