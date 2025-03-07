@@ -305,7 +305,7 @@ namespace MonsterTrading.DB
                     await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("userid", user = user.Split('-')[0]);
                     await command.ExecuteNonQueryAsync();
-                    await stackdeckDB.DeleteFromStack(card, user);
+                    await stackdeckDB.DeleteFromStack(card.Id, user);
                 }
                 catch (Exception ex)
                 {

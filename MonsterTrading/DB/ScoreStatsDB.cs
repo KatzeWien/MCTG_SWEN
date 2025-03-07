@@ -11,7 +11,7 @@ namespace MonsterTrading.DB
     public class ScoreStatsDB
     {
         private ServerResponse response;
-        private DBAccess dBAccess;
+        public DBAccess dBAccess;
         public ScoreStatsDB()
         {
             this.response = new ServerResponse();

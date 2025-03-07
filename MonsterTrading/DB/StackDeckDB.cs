@@ -13,7 +13,7 @@ namespace MonsterTrading.DB
 {
     public class StackDeckDB
     {
-        private DBAccess dBAccess;
+        public DBAccess dBAccess;
         private ServerResponse response;
         public StackDeckDB()
         {
@@ -166,7 +166,7 @@ namespace MonsterTrading.DB
             }
         }
 
-        public async Task DeleteFromStack(Cards cards, string name)
+        public async Task DeleteFromStack(string cardsID, string name)
         {
             await using (var connection = await dBAccess.Connect())
             {
@@ -176,7 +176,7 @@ namespace MonsterTrading.DB
                     string statement = "DELETE FROM stacks WHERE userid = @userid AND cardid = @cardid;";
                     await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                    command.Parameters.AddWithValue("cardid", cards.Id);
+                    command.Parameters.AddWithValue("cardid", cardsID);
                     await command.ExecuteNonQueryAsync();
                 }
                 catch (Exception ex)

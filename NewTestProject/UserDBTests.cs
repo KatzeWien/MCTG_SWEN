@@ -7,18 +7,18 @@ using System.IO;
 [TestFixture]
 public class UserDBTests
 {
-    private DbConnection _connection;
+    private DbConnection connection;
 
-    private UserDB _userDB;
+    private UserDB userDB;
 
     [SetUp]
     public void Setup()
     {
         string conn = "Host=localhost;Username=if23b258;Password=123456;Database=testdb";
-        _connection = new NpgsqlConnection(conn);
-        _connection.Open();
+        connection = new NpgsqlConnection(conn);
+        connection.Open();
 
-        var command = _connection.CreateCommand();
+        var command = connection.CreateCommand();
         command.CommandText = @"
             CREATE TABLE IF NOT EXISTS users (
                 username TEXT PRIMARY KEY,
@@ -30,21 +30,18 @@ public class UserDBTests
             );
         ";
         command.ExecuteNonQuery();
-
-
-
-        _userDB = new UserDB(); // Verwende den Standardkonstruktor
-        _userDB.dBAccess.connString = conn;
+        userDB = new UserDB();
+        userDB.dBAccess.connString = conn;
     }
 
     [TearDown]
     public void Teardown()
     {
-        var command = _connection.CreateCommand();
+        var command = connection.CreateCommand();
         command.CommandText = "DROP TABLE IF EXISTS users;";
         command.ExecuteNonQuery();
 
-        _connection.Close();
+        connection.Close();
     }
 
     [Test]
@@ -52,14 +49,14 @@ public class UserDBTests
     {
         // Arrange
         string username = "testuser1";
-        var command = _connection.CreateCommand();
+        var command = connection.CreateCommand();
         command.CommandText = "INSERT INTO users (username, coins) VALUES (@username, @coins);";
         command.Parameters.Add(new NpgsqlParameter("@username", username));
         command.Parameters.Add(new NpgsqlParameter("@coins", 10)); // Ausreichende Coins
         command.ExecuteNonQuery();
 
         // Act
-        bool result = await _userDB.CheckCoins(username);
+        bool result = await userDB.CheckCoins(username);
 
         // Assert
         Assert.IsTrue(result);
@@ -70,14 +67,14 @@ public class UserDBTests
     {
         // Arrange
         string username = "testuser2";
-        var command = _connection.CreateCommand();
+        var command = connection.CreateCommand();
         command.CommandText = "INSERT INTO users (username, coins) VALUES (@username, @coins);";
         command.Parameters.Add(new NpgsqlParameter("@username", username));
         command.Parameters.Add(new NpgsqlParameter("@coins", 3)); // Nicht ausreichende Coins
         command.ExecuteNonQuery();
 
         // Act
-        bool result = await _userDB.CheckCoins(username);
+        bool result = await userDB.CheckCoins(username);
 
         // Assert
         Assert.IsFalse(result);
@@ -87,7 +84,7 @@ public class UserDBTests
     public void CheckPasswordHash()
     {
         string password = "testpassword";
-        string hashedPassword = _userDB.HashPassword(password);
+        string hashedPassword = userDB.HashPassword(password);
         Assert.AreNotEqual(hashedPassword, password);
     }
 
@@ -95,8 +92,8 @@ public class UserDBTests
     public async Task CheckLoginWithFalseCred()
     {
         string username = "kienboec";
-        string password = _userDB.HashPassword("daniel");
-        var command = _connection.CreateCommand();
+        string password = userDB.HashPassword("daniel");
+        var command = connection.CreateCommand();
         command.CommandText = "INSERT INTO users (username, password) VALUES (@username, @password);";
         command.Parameters.Add(new NpgsqlParameter("@username", username));
         command.Parameters.Add(new NpgsqlParameter("@password", password));
@@ -104,7 +101,7 @@ public class UserDBTests
         string data = "{\"Username\":\"kienboec\", \"Password\":\"falsches\"}";
         using var memorystream = new MemoryStream();
         using var writer = new StreamWriter(memorystream);
-        await _userDB.LoginUser(data, writer);
+        await userDB.LoginUser(data, writer);
         writer.Flush();
         memorystream.Position = 0;
 
@@ -121,7 +118,7 @@ public class UserDBTests
         string token = "admin-token";
         using var memorystream = new MemoryStream();
         using var writer = new StreamWriter(memorystream);
-        await _userDB.ShowSpecificUser(user, writer, token);
+        await userDB.ShowSpecificUser(user, writer, token);
         writer.Flush();
         memorystream.Position = 0;
 
@@ -137,7 +134,7 @@ public class UserDBTests
         string data = "{\"Username\":\"kienboec\", \"Password\":\"daniel\"}";
         using var memorystream = new MemoryStream();
         using var writer = new StreamWriter(memorystream);
-        await _userDB.CreateUser(data, writer);
+        await userDB.CreateUser(data, writer);
         writer.Flush();
         memorystream.Position = 0;
         using var reader = new StreamReader(memorystream);
