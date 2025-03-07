@@ -186,7 +186,7 @@ namespace MonsterTrading.DB
             }
         }
 
-        public async Task AddWinnerCard(Cards cards, string name)
+        public async Task AddWinnerCard(string cardsid, string name)
         {
             await using (var connection = await dBAccess.Connect())
             {
@@ -196,7 +196,7 @@ namespace MonsterTrading.DB
                     string statement = "INSERT INTO stacks (userid, cardid) VALUES (@userid, @cardid);";
                     await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("userid", name.Split('-')[0]);
-                    command.Parameters.AddWithValue("cardid", cards.Id);
+                    command.Parameters.AddWithValue("cardid", cardsid);
                     await command.ExecuteNonQueryAsync();
                 }
                 catch (Exception ex)

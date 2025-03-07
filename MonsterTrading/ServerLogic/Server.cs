@@ -21,6 +21,7 @@ namespace MonsterTrading.Server
         private StackDeckDB stackdeckDB;
         private ScoreStatsDB scoreStatsDB;
         private Battles battles;
+        private TradesDB tradesDB;
         private string? path;
         private string? method;
         private string? body;
@@ -39,6 +40,7 @@ namespace MonsterTrading.Server
             this.scoreStatsDB = new ScoreStatsDB();
             this.battles = new Battles();
             this.queue = new ConcurrentQueue<string>();
+            this.tradesDB = new TradesDB();
         }
 
         public async Task Start()
@@ -201,11 +203,15 @@ namespace MonsterTrading.Server
             {
                 if (method == "GET")
                 {
-                    await response.WriteResponse(writer, 400, "not implementet");
+                    await tradesDB.GetTrades(this.userToken, writer);
                 }
-                else if (method == "POST" || method == "PUT" || method == "DELETE")
+                else if (method == "PUT" || method == "DELETE")
                 {
-                    await response.WriteResponse(writer, 400, "not implementet");   
+                    await tradesDB.DeleteTrade(splitpath[2], userToken, writer);
+                }
+                else if (method == "POST")
+                {
+                    await tradesDB.CreateTrade(body, userToken, writer);
                 }
             }
         }

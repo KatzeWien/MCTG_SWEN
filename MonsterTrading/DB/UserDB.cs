@@ -243,7 +243,7 @@ namespace MonsterTrading.DB
             }
         }
 
-        public async Task DecreaseCoins(string name)
+        public async Task<int> DecreaseCoins(string name)
         {
             await using (var connection = await dBAccess.Connect())
             {
@@ -253,10 +253,21 @@ namespace MonsterTrading.DB
                     string statement = "UPDATE users SET coins = coins - 5 WHERE username = @username;";
                     await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("username", name = name.Split('-')[0]);
-                    await command.ExecuteNonQueryAsync();
+                    int affectedRows = await command.ExecuteNonQueryAsync();
+                    if (affectedRows != 0)
+                    {
+                        return 201;
+                    }
+                    else
+                    {
+                        return 400;
+                    }
                 }
                 catch (Exception ex)
-                { Console.WriteLine(ex.Message); }
+                { 
+                    Console.WriteLine(ex.Message); 
+                    return 400;
+                }
             }
         }
 
@@ -326,7 +337,7 @@ namespace MonsterTrading.DB
                     await using var command = new NpgsqlCommand(statement, connection);
                     command.Parameters.AddWithValue("userid", user = user.Split('-')[0]);
                     await command.ExecuteNonQueryAsync();
-                    await stackdeckDB.AddWinnerCard(card, user);
+                    await stackdeckDB.AddWinnerCard(card.Id, user);
                 }
                 catch (Exception ex)
                 {

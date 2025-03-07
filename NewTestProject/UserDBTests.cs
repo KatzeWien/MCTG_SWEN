@@ -141,4 +141,17 @@ public class UserDBTests
         string result = await reader.ReadToEndAsync();
         Assert.IsTrue(result.Contains("user got added"));
     }
+
+    [Test]
+    public async Task DecreaseCoinsTest()
+    {
+        string username = "testuser2";
+        var command = connection.CreateCommand();
+        command.CommandText = "INSERT INTO users (username, coins) VALUES (@username, @coins);";
+        command.Parameters.Add(new NpgsqlParameter("@username", username));
+        command.Parameters.Add(new NpgsqlParameter("@coins", 10));
+        command.ExecuteNonQuery();
+        int response = await userDB.DecreaseCoins(username);
+        Assert.IsTrue(response == 201);
+    }
 }

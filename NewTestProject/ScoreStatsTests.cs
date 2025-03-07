@@ -43,6 +43,7 @@ namespace NewTestProject
             var command = connection.CreateCommand();
             command.CommandText = "DROP TABLE IF EXISTS users;";
             command.ExecuteNonQuery();
+            connection.Close();
         }
 
         [Test]
@@ -71,5 +72,28 @@ namespace NewTestProject
 
             Assert.IsTrue(result.Contains("201"));
         }
+
+        /*[Test]
+        public async Task GetUserStatsTest()
+        {
+            string token = "user1-token";
+            var command = connection.CreateCommand();
+            command.CommandText = "INSERT INTO users (username, elo, wins, losses) VALUES (@username, @elo, @wins, @losses);";
+            command.Parameters.Add(new NpgsqlParameter("@username", token.Split('-')[0].Trim()));
+            command.Parameters.Add(new NpgsqlParameter("@elo", 50));
+            command.Parameters.Add(new NpgsqlParameter("@wins", 10));
+            command.Parameters.Add(new NpgsqlParameter("@losses", 8));
+            await command.ExecuteNonQueryAsync();
+            using var memorystream = new MemoryStream();
+            using var writer = new StreamWriter(memorystream);
+            await scoreStatsDB.GetUserStats(token, writer);
+            writer.Flush();
+            memorystream.Position = 0;
+
+            using var reader = new StreamReader(memorystream);
+            string result = await reader.ReadToEndAsync();
+
+            Assert.IsTrue(result.Contains("201"));
+        }*/
     }
 }

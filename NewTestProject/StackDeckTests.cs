@@ -103,7 +103,7 @@ namespace NewTestProject
             return count;
         }
         [Test]
-        public async Task DeleteCardFromStackTest()
+        public async Task DeleteCardFromStackAfterLossTest()
         {
             string username = "user1";
             string card1 = "123456";
@@ -117,6 +117,22 @@ namespace NewTestProject
             await this.stackDeckDB.DeleteFromStack(card1, username);
             int CountAfterDelete = await GetStackCount(username);
             Assert.IsTrue(CountAfterDelete == CountBeforeDelete - 1 );
+        }
+
+        [Test]
+        public async Task AddCardFromStackAfterWinTest()
+        {
+            string username = "user1";
+            string card1 = "123456";
+            string card2 = "234567";
+            await CreateUser(username);
+            await CreateCard(card1);
+            await CreateCard(card2);
+            await CreateStack(card1, username);
+            int CountBeforeAdd = await GetStackCount(username);
+            await this.stackDeckDB.AddWinnerCard(card2, username);
+            int CountAfterAdd = await GetStackCount(username);
+            Assert.IsTrue(CountAfterAdd == CountBeforeAdd + 1);
         }
     }
 }
