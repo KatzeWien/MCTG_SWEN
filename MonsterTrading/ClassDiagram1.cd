@@ -3,7 +3,7 @@
   <Class Name="MonsterTrading.User">
     <Position X="9.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAgAAAAAQAACAAAAAAAAAAiAAAIAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAgAAAACQAACAQAAAAAABAiAAAIAAAAAAA=</HashCode>
       <FileName>User.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -30,17 +30,10 @@
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Battles">
-    <Position X="5.75" Y="4.5" Width="1.5" />
+    <Position X="5.75" Y="3.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAEAAAAAAAAAAAAAIABIAAAAAAAAACAAAAAQAAAg=</HashCode>
       <FileName>Battles.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="MonsterTrading.ScoreBoard">
-    <Position X="7.5" Y="4.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>ScoreBoard.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Stack">
@@ -51,7 +44,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Deck">
-    <Position X="9.75" Y="3.25" Width="1.5" />
+    <Position X="2.25" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>IAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Deck.cs</FileName>
@@ -67,21 +60,21 @@
   <Class Name="MonsterTrading.DB.UserDB">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAAAAEBABRAUAAAQAAIAgAABAAAAAgAAQAAAAAAQAAE=</HashCode>
+      <HashCode>EAAAAGAAAQAUEAAAAAIAAAABAQABAgEAAAAAAAAgAAE=</HashCode>
       <FileName>DB\UserDB.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Server.Server">
     <Position X="0.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAEAAACAAACAAABACABAAARABAACAAAAQAAAAAEA=</HashCode>
+      <HashCode>AAEAAGAAACAAACAAABBCABAAAZABAACAAAAQAAAAAEA=</HashCode>
       <FileName>Server\Server.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.DB.PackagesAndCardsDB">
     <Position X="5.75" Y="0.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>EAAAIEAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
+      <HashCode>EAAAIEAEAAABQAAAAAAAAAAAAAAAAABAAAAAAAABAAA=</HashCode>
       <FileName>DB\PackagesAndCardsDB.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -93,10 +86,24 @@
     </TypeIdentifier>
   </Class>
   <Class Name="MonsterTrading.Packages">
-    <Position X="11.5" Y="2" Width="1.5" />
+    <Position X="11.5" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Packages.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MonsterTrading.DB.ScoreStatsDB">
+    <Position X="9.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAEABAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DB\ScoreStatsDB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MonsterTrading.DB.StackDeckDB">
+    <Position X="11.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAEBABAAAAAAQAAAAAAAAAAAAAAAAUAAAAAAUAAA=</HashCode>
+      <FileName>DB\StackDeckDB.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
