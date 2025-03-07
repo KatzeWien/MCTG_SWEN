@@ -16,7 +16,6 @@ namespace NewTestProject
     {
         private Server server;
         private DbConnection connection;
-        private TcpListener httpServer;
 
         [SetUp]
         public void Setup()
@@ -26,7 +25,6 @@ namespace NewTestProject
             connection.Open();
             this.server = new Server(IPAddress.Parse("127.0.0.1"), 10001); 
             this.server.dbAccess.connString = conn;
-            this.httpServer = new TcpListener(IPAddress.Parse("127.0.0.1"), 10001);
         }
 
         [TearDown]
@@ -38,6 +36,7 @@ namespace NewTestProject
         [Test]
         public async Task RunningAServer()
         {
+            TcpListener httpServer = new TcpListener(IPAddress.Parse("127.0.0.1"), 10001);
             var serverTask = Task.Run(() => server.Start());
             await Task.Delay(100);
             using (var client = new TcpClient())
