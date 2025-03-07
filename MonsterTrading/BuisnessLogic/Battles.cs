@@ -80,11 +80,11 @@ namespace MonsterTrading.BuisnessLogic
         {
             if (player1.Name.Contains("Goblin") && player2.Name.Contains("Dragon"))
             {
-                return user1;
+                return user2;
             }
             else if (player2.Name.Contains("Goblin") && player1.Name.Contains("Dragon"))
             {
-                return user2;
+                return user1;
             }
             else if (player1.Name.Contains("Wizard") && player2.Name.Contains("Ork"))
             {
